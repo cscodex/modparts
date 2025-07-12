@@ -1,0 +1,28 @@
+# Allow access to image files
+<IfModule mod_authz_core.c>
+    Require all granted
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Allow from all
+</IfModule>
+
+# Set proper MIME types
+<IfModule mod_mime.c>
+    AddType image/jpeg .jpg .jpeg
+    AddType image/png .png
+    AddType image/gif .gif
+</IfModule>
+
+# Enable CORS for image access
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+</IfModule>
+
+# Disable PHP execution in this directory for security
+<FilesMatch "\.php$">
+    Require all denied
+</FilesMatch>
+
+# Disable directory listing
+Options -Indexes

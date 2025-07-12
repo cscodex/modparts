@@ -1,0 +1,22 @@
+{
+  "name": "yamaha-rd-parts-shop",
+  "version": "1.0.0",
+  "description": "Yamaha RD Parts Shop - Full Stack Application",
+  "main": "index.js",
+  "scripts": {
+    "build": "cd frontend && npm run build",
+    "vercel-build": "cd frontend && npm install && npm run build"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "axios": "^1.10.0",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

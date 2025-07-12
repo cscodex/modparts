@@ -1,0 +1,11 @@
+{
+  "name": "stripe-integration-guide",
+  "description": "Commands to install Stripe for frontend",
+  "scripts": {
+    "install-stripe": "npm install @stripe/stripe-js @stripe/react-stripe-js"
+  },
+  "dependencies": {
+    "@stripe/stripe-js": "^2.4.0",
+    "@stripe/react-stripe-js": "^2.4.0"
+  }
+}

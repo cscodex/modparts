@@ -1,0 +1,137 @@
+/* Print styles for invoices */
+@media print {
+  /* Hide navigation and buttons */
+  nav,
+  header,
+  footer,
+  .no-print,
+  button {
+    display: none !important;
+  }
+
+  /* Show only the invoice content */
+  body {
+    background-color: white;
+    font-size: 10pt; /* Smaller font size */
+    color: black;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Make sure the invoice takes the full page and fits on one page */
+  .container {
+    width: 100%;
+    max-width: 100%;
+    padding: 0.5cm;
+    margin: 0;
+    box-sizing: border-box;
+  }
+
+  /* Prevent page breaks inside elements */
+  .no-break {
+    page-break-inside: avoid;
+  }
+
+  /* Force single page */
+  .single-page {
+    page-break-after: avoid;
+    page-break-before: avoid;
+  }
+
+  /* Ensure tables display properly with smaller padding */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9pt; /* Even smaller font for tables */
+  }
+
+  th, td {
+    padding: 4px;
+    border: 1px solid #ddd;
+  }
+
+  /* Add invoice header */
+  .invoice-header {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .invoice-header h1 {
+    font-size: 18pt;
+    margin: 0 0 5px 0;
+  }
+
+  .invoice-header p {
+    margin: 0 0 5px 0;
+  }
+
+  /* Format the invoice sections with reduced margins */
+  .invoice-section {
+    margin-bottom: 10px;
+  }
+
+  .invoice-section h2 {
+    font-size: 12pt;
+    margin: 0 0 5px 0;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 3px;
+  }
+
+  /* Format the order items table */
+  .order-items th {
+    background-color: #f0f0f0;
+    font-weight: bold;
+  }
+
+  .order-items tfoot {
+    font-weight: bold;
+  }
+
+  /* Hide the back button when printing */
+  .back-button {
+    display: none !important;
+  }
+
+  /* Compact spacing for order details */
+  .order-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  /* Compact timeline */
+  .timeline-item {
+    margin-bottom: 5px !important;
+  }
+
+  /* Hide order timeline to save space */
+  .order-timeline {
+    display: none !important;
+  }
+
+  /* Add invoice footer */
+  .invoice-footer {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 8pt;
+    color: #666;
+  }
+
+  /* Reduce all margins and paddings */
+  h1, h2, h3, p {
+    margin: 0 0 5px 0;
+  }
+
+  .p-6 {
+    padding: 10px !important;
+  }
+
+  .mb-6 {
+    margin-bottom: 10px !important;
+  }
+
+  .gap-6 {
+    gap: 10px !important;
+  }
+}
