@@ -1,8 +1,9 @@
 // Development server for local testing
 // This simulates the Vercel serverless function environment locally
 
-// Load environment variables from .env.local
+// Load environment variables from .env.local or .env
 require('dotenv').config({ path: '.env.local' });
+require('dotenv').config(); // Fallback to .env
 
 const express = require('express');
 const cors = require('cors');
@@ -160,6 +161,16 @@ app.listen(PORT, () => {
   console.log('📁 Serving static files from: public/');
   console.log('🔌 API endpoints available at: /api/*');
   console.log('');
+
+  // Debug environment variables
+  console.log('🔧 Environment Variables Check:');
+  console.log('  NODE_ENV:', process.env.NODE_ENV);
+  console.log('  SUPABASE_URL:', process.env.SUPABASE_URL ? '✅ Set' : '❌ Missing');
+  console.log('  SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY ? '✅ Set' : '❌ Missing');
+  console.log('  SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? '✅ Set' : '❌ Missing');
+  console.log('  JWT_SECRET:', process.env.JWT_SECRET ? '✅ Set' : '❌ Missing');
+  console.log('');
+
   console.log('Available API endpoints:');
   console.log('  POST /api/auth/login');
   console.log('  POST /api/auth/register');
