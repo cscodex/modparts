@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: yamaha-parts-shop
+    env: node
+    buildCommand: npm install && cd frontend && npm install --include=dev && npm run build
+    startCommand: node dev-server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SUPABASE_URL
+        value: https://uwizdypmlvfvegklnogq.supabase.co
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false
