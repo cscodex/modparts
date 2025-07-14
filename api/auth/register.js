@@ -1,4 +1,4 @@
-const { supabase } = require('../../lib/supabase')
+const { supabaseAdmin } = require('../../lib/supabase')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
@@ -22,7 +22,7 @@ module.exports = async function handler(req, res) {
     }
 
     // Check if user already exists
-    const { data: existingUser } = await supabase
+    const { data: existingUser } = await supabaseAdmin
       .from('users')
       .select('id')
       .eq('email', email)
@@ -35,8 +35,8 @@ module.exports = async function handler(req, res) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    // Create user in Supabase
-    const { data: newUser, error } = await supabase
+    // Create user in Supabase using admin client to bypass RLS
+    const { data: newUser, error } = await supabaseAdmin
       .from('users')
       .insert([
         {
@@ -60,7 +60,7 @@ module.exports = async function handler(req, res) {
     console.log('✅ User created successfully:', { id: newUser.id, email: newUser.email })
 
     // Verify user was actually created by querying it back
-    const { data: verifyUser, error: verifyError } = await supabase
+    const { data: verifyUser, error: verifyError } = await supabaseAdmin
       .from('users')
       .select('id, email')
       .eq('id', newUser.id)

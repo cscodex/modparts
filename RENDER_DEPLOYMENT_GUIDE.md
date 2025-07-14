@@ -55,7 +55,7 @@ git push origin main
 3. Configure:
    - **Name**: `yamaha-parts-shop`
    - **Root Directory**: `/` (root)
-   - **Build Command**: `npm install && cd frontend && npm install && npm run build`
+   - **Build Command**: `npm install && cd frontend && npm install --include=dev && npm run build`
    - **Start Command**: `node dev-server.js`
    - **Instance Type**: Free
 
@@ -67,6 +67,8 @@ Add these environment variables in Render dashboard:
 SUPABASE_URL=https://uwizdypmlvfvegklnogq.supabase.co
 SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3aXpkeXBtbHZmdmVna2xub2dxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA5Mzk3MDUsImV4cCI6MjA2NjUxNTcwNX0.KQ3_XiXJERD7mA4iZOaon82hcR7g6PBigelW_rie7Ew
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3aXpkeXBtbHZmdmVna2xub2dxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDkzOTcwNSwiZXhwIjoyMDY2NTE1NzA1fQ.9uRj8ao4jKsCOvmcnDYso5vP6CZHuUW2w0irGLDE9LQ
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3aXpkeXBtbHZmdmVna2xub2dxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDkzOTcwNSwiZXhwIjoyMDY2NTE1NzA1fQ.9uRj8ao4jKsCOvmcnDYso5vP6CZHuUW2w0irGLDE9LQ
+
 JWT_SECRET=cknBU1dk+r6v/xZojqR7fHOhDpBNltk6offArhevQpG7YS6AVio3n2iRD/ASCjAmSa/y9Rx1Z00IUxxvHUu58g==
 NODE_ENV=production
 ```
@@ -95,7 +97,7 @@ services:
   - type: web
     name: yamaha-parts-shop
     env: node
-    buildCommand: npm install && cd frontend && npm install && npm run build
+    buildCommand: npm install && cd frontend && npm install --include=dev && npm run build
     startCommand: node dev-server.js
     envVars:
       - key: NODE_ENV

@@ -1,4 +1,4 @@
-const { supabase } = require('../../lib/supabase')
+const { supabaseAdmin } = require('../../lib/supabase')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
@@ -25,8 +25,8 @@ module.exports = async function handler(req, res) {
 
     console.log('Attempting Supabase query for user:', email);
 
-    // Get user from Supabase
-    const { data: user, error } = await supabase
+    // Get user from Supabase using admin client to bypass RLS
+    const { data: user, error } = await supabaseAdmin
       .from('users')
       .select('*')
       .eq('email', email)
