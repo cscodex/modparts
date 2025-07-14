@@ -10,11 +10,20 @@ module.exports = async function handler(req, res) {
   }
 
   try {
+    console.log('Login attempt for:', req.body?.email);
+    console.log('Environment check:');
+    console.log('- SUPABASE_URL:', process.env.SUPABASE_URL ? 'Set' : 'Missing');
+    console.log('- SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY ? 'Set' : 'Missing');
+    console.log('- JWT_SECRET:', process.env.JWT_SECRET ? 'Set' : 'Missing');
+
     const { email, password } = req.body
 
     if (!email || !password) {
+      console.log('Missing email or password');
       return res.status(400).json({ message: 'Email and password are required' })
     }
+
+    console.log('Attempting Supabase query for user:', email);
 
     // Get user from Supabase
     const { data: user, error } = await supabase
@@ -23,7 +32,12 @@ module.exports = async function handler(req, res) {
       .eq('email', email)
       .single()
 
+    console.log('Supabase query result:');
+    console.log('- Error:', error);
+    console.log('- User found:', user ? 'Yes' : 'No');
+
     if (error || !user) {
+      console.log('Login failed: Invalid credentials or user not found');
       return res.status(401).json({ message: 'Invalid credentials' })
     }
 
@@ -59,7 +73,14 @@ module.exports = async function handler(req, res) {
     })
 
   } catch (error) {
-    console.error('Login error:', error)
-    res.status(500).json({ message: 'Internal server error' })
+    console.error('Login error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    res.status(500).json({
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Server error'
+    })
   }
 }

@@ -13,9 +13,27 @@ const fs = require('fs');
 const app = express();
 const PORT = 3000;
 
+// Determine allowed origins based on environment
+const getAllowedOrigins = () => {
+  const origins = ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'];
+
+  // In production, add the Render URL
+  if (process.env.NODE_ENV === 'production') {
+    // Add common Render URL patterns
+    origins.push('https://*.onrender.com');
+
+    // If RENDER_EXTERNAL_URL is available, use it
+    if (process.env.RENDER_EXTERNAL_URL) {
+      origins.push(process.env.RENDER_EXTERNAL_URL);
+    }
+  }
+
+  return origins;
+};
+
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'],
+  origin: getAllowedOrigins(),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
@@ -25,11 +43,14 @@ app.use(cors({
 // Add explicit CORS headers for all requests
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'];
+  const allowedOrigins = getAllowedOrigins();
 
   // Set specific origin instead of wildcard when credentials are used
-  if (allowedOrigins.includes(origin)) {
+  if (allowedOrigins.includes(origin) || (origin && origin.includes('.onrender.com'))) {
     res.header('Access-Control-Allow-Origin', origin);
+  } else if (process.env.NODE_ENV === 'production') {
+    // In production, allow same-origin requests
+    res.header('Access-Control-Allow-Origin', '*');
   } else {
     res.header('Access-Control-Allow-Origin', 'http://localhost:5173'); // Default to frontend
   }
