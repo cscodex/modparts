@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend-Backend Communication Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+        .error { background: #f8d7da; border-color: #f5c6cb; }
+        .info { background: #d1ecf1; border-color: #bee5eb; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 5px;
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Frontend-Backend Communication Test</h1>
+    <p>This page tests the communication between frontend (port 5173) and backend (port 3000).</p>
+    
+    <div class="test-section">
+        <h3>1. Basic API Connection Test</h3>
+        <button onclick="testBasicConnection()">Test Basic Connection</button>
+        <div id="basicResult" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>2. CORS Test</h3>
+        <button onclick="testCORS()">Test CORS</button>
+        <div id="corsResult" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>3. Login Test</h3>
+        <div>
+            <input type="email" id="email" placeholder="Email" value="charan881130@gmail.com">
+            <input type="password" id="password" placeholder="Password" value="Merit123#">
+            <button onclick="testLogin()">Test Login</button>
+        </div>
+        <div id="loginResult" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>4. Products API Test</h3>
+        <button onclick="testProducts()">Test Products API</button>
+        <div id="productsResult" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>5. Frontend API Config Test</h3>
+        <button onclick="testFrontendConfig()">Test Frontend Config</button>
+        <div id="configResult" class="log"></div>
+    </div>
+
+    <script>
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}\n`;
+            element.textContent += logEntry;
+            element.scrollTop = element.scrollHeight;
+            
+            // Change background color based on type
+            if (type === 'success') {
+                element.style.background = '#d4edda';
+            } else if (type === 'error') {
+                element.style.background = '#f8d7da';
+            } else {
+                element.style.background = '#f8f9fa';
+            }
+        }
+        
+        async function testBasicConnection() {
+            const resultId = 'basicResult';
+            document.getElementById(resultId).textContent = '';
+            
+            log(resultId, 'Testing basic connection to backend...');
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/products?limit=1');
+                const data = await response.json();
+                
+                log(resultId, `✅ Connection successful!`, 'success');
+                log(resultId, `Status: ${response.status}`);
+                log(resultId, `Products returned: ${data.data?.length || 0}`);
+                log(resultId, `Backend is responding correctly`);
+                
+            } catch (error) {
+                log(resultId, `❌ Connection failed: ${error.message}`, 'error');
+                log(resultId, `This indicates the backend is not running or not accessible`);
+            }
+        }
+        
+        async function testCORS() {
+            const resultId = 'corsResult';
+            document.getElementById(resultId).textContent = '';
+            
+            log(resultId, 'Testing CORS configuration...');
+            
+            try {
+                // Test OPTIONS request
+                const optionsResponse = await fetch('http://localhost:3000/api/auth/login', {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': 'http://localhost:5173',
+                        'Access-Control-Request-Method': 'POST',
+                        'Access-Control-Request-Headers': 'Content-Type'
+                    }
+                });
+                
+                log(resultId, `✅ OPTIONS request successful: ${optionsResponse.status}`, 'success');
+                
+                // Check CORS headers
+                const corsHeaders = {
+                    'Access-Control-Allow-Origin': optionsResponse.headers.get('Access-Control-Allow-Origin'),
+                    'Access-Control-Allow-Methods': optionsResponse.headers.get('Access-Control-Allow-Methods'),
+                    'Access-Control-Allow-Headers': optionsResponse.headers.get('Access-Control-Allow-Headers'),
+                    'Access-Control-Allow-Credentials': optionsResponse.headers.get('Access-Control-Allow-Credentials')
+                };
+                
+                log(resultId, `CORS Headers: ${JSON.stringify(corsHeaders, null, 2)}`);
+                
+                if (corsHeaders['Access-Control-Allow-Origin'] === '*' || 
+                    corsHeaders['Access-Control-Allow-Origin'] === 'http://localhost:5173') {
+                    log(resultId, `✅ CORS is properly configured`, 'success');
+                } else {
+                    log(resultId, `❌ CORS might be misconfigured`, 'error');
+                }
+                
+            } catch (error) {
+                log(resultId, `❌ CORS test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testLogin() {
+            const resultId = 'loginResult';
+            document.getElementById(resultId).textContent = '';
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            log(resultId, `Testing login with email: ${email}`);
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Origin': 'http://localhost:5173'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log(resultId, `✅ Login successful!`, 'success');
+                    log(resultId, `Status: ${response.status}`);
+                    log(resultId, `Token: ${data.token ? 'Present' : 'Missing'}`);
+                    log(resultId, `User: ${data.user?.email || 'Missing'}`);
+                    log(resultId, `Message: ${data.message}`);
+                    
+                    // Test authenticated request
+                    log(resultId, `Testing authenticated request...`);
+                    const authResponse = await fetch('http://localhost:3000/api/cart', {
+                        headers: {
+                            'Authorization': `Bearer ${data.token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (authResponse.ok) {
+                        log(resultId, `✅ Authenticated request successful!`, 'success');
+                    } else {
+                        log(resultId, `❌ Authenticated request failed: ${authResponse.status}`);
+                    }
+                    
+                } else {
+                    log(resultId, `❌ Login failed: ${response.status}`, 'error');
+                    log(resultId, `Message: ${data.message}`);
+                }
+                
+            } catch (error) {
+                log(resultId, `❌ Login request failed: ${error.message}`, 'error');
+                log(resultId, `This could be a network error or CORS issue`);
+            }
+        }
+        
+        async function testProducts() {
+            const resultId = 'productsResult';
+            document.getElementById(resultId).textContent = '';
+            
+            log(resultId, 'Testing products API...');
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/products?page=1&limit=5');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log(resultId, `✅ Products API successful!`, 'success');
+                    log(resultId, `Status: ${response.status}`);
+                    log(resultId, `Products: ${data.data?.length || 0}`);
+                    log(resultId, `Total: ${data.pagination?.totalItems || 'N/A'}`);
+                    log(resultId, `Pages: ${data.pagination?.totalPages || 'N/A'}`);
+                    
+                    if (data.data && data.data.length > 0) {
+                        log(resultId, `Sample product: ${data.data[0].name}`);
+                    }
+                } else {
+                    log(resultId, `❌ Products API failed: ${response.status}`, 'error');
+                }
+                
+            } catch (error) {
+                log(resultId, `❌ Products request failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testFrontendConfig() {
+            const resultId = 'configResult';
+            document.getElementById(resultId).textContent = '';
+            
+            log(resultId, 'Testing frontend configuration...');
+            
+            // Check current page URL
+            log(resultId, `Current URL: ${window.location.href}`);
+            log(resultId, `Hostname: ${window.location.hostname}`);
+            log(resultId, `Port: ${window.location.port}`);
+            
+            // Check if we're running on the expected port
+            if (window.location.port === '5173') {
+                log(resultId, `✅ Running on correct frontend port (5173)`, 'success');
+            } else {
+                log(resultId, `❌ Not running on expected port (5173)`, 'error');
+            }
+            
+            // Test if we can reach the backend
+            try {
+                const startTime = Date.now();
+                const response = await fetch('http://localhost:3000/api/products?limit=1');
+                const endTime = Date.now();
+                
+                if (response.ok) {
+                    log(resultId, `✅ Backend reachable from frontend`, 'success');
+                    log(resultId, `Response time: ${endTime - startTime}ms`);
+                } else {
+                    log(resultId, `❌ Backend returned error: ${response.status}`, 'error');
+                }
+                
+            } catch (error) {
+                log(resultId, `❌ Cannot reach backend: ${error.message}`, 'error');
+                log(resultId, `Check if backend is running on port 3000`);
+            }
+            
+            // Check localStorage
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            log(resultId, `Token in localStorage: ${token ? 'Present' : 'Missing'}`);
+            log(resultId, `User in localStorage: ${user ? 'Present' : 'Missing'}`);
+            
+            if (user) {
+                try {
+                    const userData = JSON.parse(user);
+                    log(resultId, `Stored user: ${userData.email || 'Unknown'}`);
+                } catch (e) {
+                    log(resultId, `❌ Invalid user data in localStorage`, 'error');
+                }
+            }
+        }
+        
+        // Run basic tests on page load
+        window.onload = function() {
+            testBasicConnection();
+            testFrontendConfig();
+        };
+    </script>
+</body>
+</html>

@@ -14,11 +14,38 @@ const PORT = 3000;
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000'],
-  credentials: true
+  origin: ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range']
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
+// Add explicit CORS headers for all requests
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'];
+
+  // Set specific origin instead of wildcard when credentials are used
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  } else {
+    res.header('Access-Control-Allow-Origin', 'http://localhost:5173'); // Default to frontend
+  }
+
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+    return;
+  }
+  next();
+});
+
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Serve static files from public directory
 app.use(express.static('public'));
@@ -36,8 +63,11 @@ app.all('/api/*', async (req, res) => {
     if (apiPath.includes('/')) {
       // Handle nested routes like auth/login, products/123, cart/456
       const parts = apiPath.split('/');
-      if (parts.length === 2 && !isNaN(parts[1])) {
-        // Handle dynamic routes like products/123 -> products/[id].js
+      if (parts.length === 2 && (
+        !isNaN(parts[1]) || // Numeric ID
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(parts[1]) // UUID
+      )) {
+        // Handle dynamic routes like products/123 or cart/uuid -> products/[id].js or cart/[id].js
         filePath = path.join(__dirname, 'api', parts[0], '[id].js');
         req.query.id = parts[1]; // Add ID to query params
       } else {

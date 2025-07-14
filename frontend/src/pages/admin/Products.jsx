@@ -39,10 +39,12 @@ const Products = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [productsData, categoriesData] = await Promise.all([
-          getProducts(),
+        const [productsResult, categoriesData] = await Promise.all([
+          getProducts({ limit: 1000 }), // Get all products for admin
           getCategories()
         ]);
+
+        const productsData = productsResult.products || productsResult; // Handle both old and new API format
 
         console.log('Products data:', productsData);
         console.log('Categories data:', categoriesData);

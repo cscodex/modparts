@@ -12,7 +12,9 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const productsData = await getProducts();
+        const result = await getProducts({ limit: 100 }); // Get more products for better random selection
+        const productsData = result.products || result; // Handle both old and new API format
+
         // Get 4 random products as featured
         const randomProducts = productsData
           .sort(() => 0.5 - Math.random())

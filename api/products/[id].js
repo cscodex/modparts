@@ -1,16 +1,7 @@
 const { supabase } = require('../../lib/supabase')
 
 module.exports = async function handler(req, res) {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-  res.setHeader('Access-Control-Allow-Credentials', 'true')
-  res.setHeader('Vary', 'Origin')
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end()
-  }
+  // CORS is handled by dev-server middleware
 
   const { id } = req.query
 

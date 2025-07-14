@@ -8,13 +8,20 @@ import { processImageUrl, handleImageError } from '../utils/imageHelper';
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addToCart } = useCart();
-  const { success } = useToast();
+  const { addToCart, error: cartError } = useCart();
+  const { success, error: showError } = useToast();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [quantity, setQuantity] = useState(1);
+
+  // Handle cart errors
+  useEffect(() => {
+    if (cartError) {
+      showError(cartError);
+    }
+  }, [cartError, showError]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -45,7 +52,9 @@ const ProductDetail = () => {
       await addToCart(product, quantity);
       success(`${quantity} ${product.name} added to cart!`);
     } catch (error) {
-      // Error is already handled in CartContext, just log it
+      // Show the specific error message from the cart context
+      const errorMessage = cartError || error.message || 'Failed to add item to cart';
+      showError(errorMessage);
       console.error('Failed to add to cart:', error);
     }
   };
@@ -55,7 +64,9 @@ const ProductDetail = () => {
       await addToCart(product, quantity);
       navigate('/cart');
     } catch (error) {
-      // Error is already handled in CartContext, just log it
+      // Show the specific error message from the cart context
+      const errorMessage = cartError || error.message || 'Failed to add item to cart';
+      showError(errorMessage);
       console.error('Failed to add to cart for buy now:', error);
     }
   };

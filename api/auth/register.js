@@ -1,18 +1,12 @@
 const { supabase } = require('../../lib/supabase')
-const bcrypt = require('bcryptjs')
+const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
 module.exports = async function handler(req, res) {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-  res.setHeader('Access-Control-Allow-Credentials', 'true')
-
-  if (req.method === 'OPTIONS') {
-    res.status(200).end()
-    return
-  }
+  // CORS is handled by dev-server middleware
+  console.log('🔍 Registration API called')
+  console.log('Request method:', req.method)
+  console.log('Request body:', req.body)
 
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' })
@@ -106,7 +100,12 @@ module.exports = async function handler(req, res) {
     })
 
   } catch (error) {
-    console.error('Registration error:', error)
-    res.status(500).json({ message: 'Internal server error' })
+    console.error('❌ Registration error:', error)
+    console.error('❌ Error stack:', error.stack)
+    console.error('❌ Error message:', error.message)
+    res.status(500).json({
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
   }
 }

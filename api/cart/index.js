@@ -45,16 +45,7 @@ function verifyToken(req) {
 }
 
 module.exports = async function handler(req, res) {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-  res.setHeader('Access-Control-Allow-Credentials', 'true')
-
-  if (req.method === 'OPTIONS') {
-    res.status(200).end()
-    return
-  }
+  // CORS is handled by dev-server middleware
 
   // Verify authentication
   const user = verifyToken(req)
@@ -125,10 +116,32 @@ module.exports = async function handler(req, res) {
         console.log(`🔄 After merging: ${finalCartItems.length} total items`)
       }
 
-      console.log(`✅ Returning ${finalCartItems.length} cart items`)
+      // Calculate total and prepare response in format frontend expects
+      const total = finalCartItems.reduce((sum, item) => {
+        const price = item.product?.price || item.price || 0;
+        const quantity = item.quantity || 0;
+        return sum + (price * quantity);
+      }, 0);
+
+      // Transform items to match frontend expectations
+      const transformedItems = finalCartItems.map(item => ({
+        id: item.id,
+        product_id: item.product_id,
+        name: item.product?.name || item.name,
+        price: item.product?.price || item.price,
+        quantity: item.quantity,
+        image_url: item.product?.image_url || item.image_url,
+        stock_quantity: item.product?.quantity || item.stock_quantity,
+        subtotal: (item.product?.price || item.price || 0) * (item.quantity || 0)
+      }));
+
+      console.log(`✅ Returning ${finalCartItems.length} cart items with total $${total.toFixed(2)}`)
       res.status(200).json({
         message: 'Cart retrieved successfully',
-        data: finalCartItems
+        items: transformedItems,  // Frontend expects 'items'
+        data: transformedItems,   // Keep 'data' for backward compatibility
+        total: total,
+        count: finalCartItems.length
       })
 
     } else if (req.method === 'POST') {
@@ -185,7 +198,11 @@ module.exports = async function handler(req, res) {
       }
 
       if (product.quantity < quantity) {
-        return res.status(400).json({ message: 'Insufficient product quantity' })
+        return res.status(400).json({
+          message: `Sorry, only ${product.quantity} items available in stock. You requested ${quantity}.`,
+          availableQuantity: product.quantity,
+          requestedQuantity: quantity
+        })
       }
 
       // Check if item already exists in cart
@@ -201,7 +218,18 @@ module.exports = async function handler(req, res) {
         const newQuantity = existingItem.quantity + quantity
 
         if (product.quantity < newQuantity) {
-          return res.status(400).json({ message: 'Insufficient product quantity' })
+          const maxCanAdd = Math.max(0, product.quantity - existingItem.quantity);
+          const message = maxCanAdd === 0
+            ? `This item is already at maximum quantity in your cart (${existingItem.quantity}/${product.quantity}).`
+            : `Cannot add ${quantity} more items. You have ${existingItem.quantity} in cart and only ${product.quantity} available in stock. You can add ${maxCanAdd} more.`;
+
+          return res.status(400).json({
+            message,
+            currentInCart: existingItem.quantity,
+            availableStock: product.quantity,
+            requestedToAdd: quantity,
+            maxCanAdd
+          })
         }
 
         const { data: updatedItem, error } = await supabase
@@ -308,20 +336,64 @@ module.exports = async function handler(req, res) {
       }
 
     } else if (req.method === 'DELETE') {
-      // Clear entire cart
-      const { error } = await supabaseAdmin
-        .from('cart_items')
-        .delete()
-        .eq('user_id', user.id)
+      // Handle different DELETE operations based on query parameters
+      const { cart_item_id, product_id, clear_all } = req.query;
 
-      if (error) {
-        console.error('Error clearing cart:', error)
-        return res.status(500).json({ message: 'Failed to clear cart' })
+      if (clear_all === 'true' || (!cart_item_id && !product_id)) {
+        // Clear entire cart
+        console.log('🗑️ Clearing entire cart for user:', user.id);
+        const { error } = await supabaseAdmin
+          .from('cart_items')
+          .delete()
+          .eq('user_id', user.id)
+
+        if (error) {
+          console.error('Error clearing cart:', error)
+          return res.status(500).json({ message: 'Failed to clear cart' })
+        }
+
+        res.status(200).json({
+          message: 'Cart cleared successfully'
+        })
+      } else if (cart_item_id) {
+        // Remove specific cart item by cart_item_id
+        console.log('🗑️ Removing cart item:', cart_item_id, 'for user:', user.id);
+        const { error } = await supabaseAdmin
+          .from('cart_items')
+          .delete()
+          .eq('id', cart_item_id)
+          .eq('user_id', user.id) // Ensure user can only delete their own items
+
+        if (error) {
+          console.error('Error removing cart item:', error)
+          return res.status(500).json({ message: 'Failed to remove item from cart' })
+        }
+
+        res.status(200).json({
+          message: 'Item removed from cart successfully'
+        })
+      } else if (product_id) {
+        // Remove cart item by product_id
+        console.log('🗑️ Removing product from cart:', product_id, 'for user:', user.id);
+        const { error } = await supabaseAdmin
+          .from('cart_items')
+          .delete()
+          .eq('product_id', product_id)
+          .eq('user_id', user.id)
+
+        if (error) {
+          console.error('Error removing product from cart:', error)
+          return res.status(500).json({ message: 'Failed to remove product from cart' })
+        }
+
+        res.status(200).json({
+          message: 'Product removed from cart successfully'
+        })
+      } else {
+        res.status(400).json({
+          message: 'Missing required parameter: cart_item_id, product_id, or clear_all=true'
+        })
       }
-
-      res.status(200).json({
-        message: 'Cart cleared successfully'
-      })
 
     } else {
       res.status(405).json({ message: 'Method not allowed' })

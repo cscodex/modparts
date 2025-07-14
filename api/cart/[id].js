@@ -1,4 +1,4 @@
-const { supabase } = require('../../lib/supabase')
+const { supabase, supabaseAdmin } = require('../../lib/supabase')
 const jwt = require('jsonwebtoken')
 
 // Helper function to verify JWT token
@@ -17,16 +17,7 @@ function verifyToken(req) {
 }
 
 module.exports = async function handler(req, res) {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-  res.setHeader('Access-Control-Allow-Credentials', 'true')
-
-  if (req.method === 'OPTIONS') {
-    res.status(200).end()
-    return
-  }
+  // CORS is handled by dev-server middleware
 
   // Verify authentication
   const user = verifyToken(req)
@@ -46,7 +37,7 @@ module.exports = async function handler(req, res) {
       }
 
       // Verify the cart item belongs to the user
-      const { data: cartItem, error: cartError } = await supabase
+      const { data: cartItem, error: cartError } = await supabaseAdmin
         .from('cart_items')
         .select('*, products(quantity)')
         .eq('id', id)
@@ -63,7 +54,7 @@ module.exports = async function handler(req, res) {
       }
 
       // Update the cart item
-      const { data: updatedItem, error } = await supabase
+      const { data: updatedItem, error } = await supabaseAdmin
         .from('cart_items')
         .update({ quantity })
         .eq('id', id)
@@ -83,7 +74,8 @@ module.exports = async function handler(req, res) {
 
     } else if (req.method === 'DELETE') {
       // Remove item from cart
-      const { error } = await supabase
+      console.log('🗑️ Removing cart item:', id, 'for user:', user.id);
+      const { error } = await supabaseAdmin
         .from('cart_items')
         .delete()
         .eq('id', id)

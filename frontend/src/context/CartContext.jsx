@@ -173,7 +173,17 @@ export const CartProvider = ({ children }) => {
       } catch (apiError) {
         console.error('API call failed, falling back to localStorage:', apiError);
 
-        // Fallback to localStorage if API fails
+        // Show the specific error message from the API
+        const errorMessage = apiError.response?.data?.message || apiError.message || 'Failed to add item to cart';
+        setError(errorMessage);
+
+        // If it's a stock/inventory error (400 status), don't fallback to localStorage
+        if (apiError.response?.status === 400) {
+          console.log('Stock/inventory error - not using localStorage fallback');
+          throw new Error(errorMessage);
+        }
+
+        // Fallback to localStorage if API fails (for other errors)
         if (!isAuthenticated()) {
           console.log('Using localStorage for non-authenticated user');
           // Use localStorage for non-authenticated users
@@ -210,7 +220,8 @@ export const CartProvider = ({ children }) => {
           });
         } else {
           console.error('API failed for authenticated user and localStorage fallback not available');
-          setError('Failed to add item to cart. Please try again.');
+          // Error message is already set above from the API response
+          throw new Error(errorMessage);
         }
       }
 

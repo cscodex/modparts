@@ -1,16 +1,25 @@
 import api from './config';
 import axios from 'axios';
 
-// Function to upload product image
+// Function to upload product image using base64 encoding
 export const uploadProductImage = async (file) => {
   try {
     console.log('Uploading file:', file.name, 'Size:', file.size, 'Type:', file.type);
 
-    const formData = new FormData();
-    formData.append('image', file);
+    // Convert file to base64
+    const base64Data = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result;
+        // Remove the data URL prefix (e.g., "data:image/png;base64,")
+        const base64 = result.split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
 
-    // Log FormData (for debugging)
-    console.log('FormData created with file');
+    console.log('File converted to base64, length:', base64Data.length);
 
     // Get auth token from localStorage
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -19,7 +28,7 @@ export const uploadProductImage = async (file) => {
     console.log('Using auth token:', token ? 'Token exists' : 'No token');
 
     const headers = {
-      'Content-Type': 'multipart/form-data'
+      'Content-Type': 'application/json'
     };
 
     // Add Authorization header if token exists
@@ -27,38 +36,32 @@ export const uploadProductImage = async (file) => {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    console.log('Sending upload request with headers:', headers);
+    // Prepare JSON payload
+    const payload = {
+      filename: file.name,
+      mimetype: file.type,
+      data: base64Data
+    };
 
-    const response = await axios.post('/Modparts/api/upload.php', formData, {
+    console.log('Making upload request to:', '/upload');
+    console.log('Headers:', headers);
+    console.log('Payload size:', JSON.stringify(payload).length, 'bytes');
+
+    const response = await api.post('/upload', payload, {
       headers,
-      withCredentials: true
+      timeout: 30000, // 30 second timeout
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity
     });
 
     console.log('Upload response:', response.data);
 
-    // Handle case where response contains PHP warnings mixed with JSON
-    let jsonData = response.data;
-
-    // If the response is a string and contains both HTML and JSON
-    if (typeof response.data === 'string' && response.data.includes('<br />') && response.data.includes('{"message"')) {
-      try {
-        // Extract the JSON part from the response
-        const jsonStart = response.data.indexOf('{');
-        const jsonString = response.data.substring(jsonStart);
-        jsonData = JSON.parse(jsonString);
-        console.log('Extracted JSON from response:', jsonData);
-      } catch (parseError) {
-        console.error('Error parsing JSON from response:', parseError);
-        throw new Error('Invalid response format from server');
-      }
+    if (response.data.success) {
+      console.log('Upload successful:', response.data.data.url);
+      return response.data.data.url;
+    } else {
+      throw new Error(response.data.message || 'Upload failed');
     }
-
-    if (!jsonData || !jsonData.file_url) {
-      console.error('Invalid response format:', jsonData);
-      throw new Error('Invalid response from server');
-    }
-
-    return jsonData;
   } catch (error) {
     console.error('Error uploading image:', error);
     console.error('Error details:', error.response?.data || 'No response data');
@@ -66,9 +69,44 @@ export const uploadProductImage = async (file) => {
   }
 };
 
-export const getProducts = async () => {
+export const getProducts = async (params = {}) => {
   try {
-    const response = await api.get('/products');
+    console.log('🔍 getProducts: Starting API call with params:', params);
+
+    const {
+      page = 1,
+      limit = 12,
+      search = '',
+      category = '',
+      categories = '',
+      sortBy = 'created_at',
+      sortOrder = 'desc'
+    } = params;
+
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+      sortBy,
+      sortOrder
+    });
+
+    if (search) queryParams.append('search', search);
+    if (category) queryParams.append('category', category);
+    if (categories) queryParams.append('categories', categories);
+
+    const url = `/products?${queryParams}`;
+    console.log('🔍 getProducts: Making request to:', url);
+
+    const response = await api.get(url);
+
+    console.log('🔍 getProducts: Raw API response:', {
+      status: response.status,
+      statusText: response.statusText,
+      dataKeys: Object.keys(response.data || {}),
+      dataType: typeof response.data,
+      hasData: !!response.data?.data,
+      dataLength: response.data?.data?.length
+    });
 
     // Process products to ensure category_id is a string for consistent comparison
     const products = response.data.data || [];
@@ -77,20 +115,56 @@ export const getProducts = async () => {
       category_id: String(product.category_id) // Ensure category_id is a string
     }));
 
-    console.log(`Fetched ${processedProducts.length} products`);
-    return processedProducts;
+    console.log(`✅ getProducts: Processed ${processedProducts.length} products (page ${page})`);
+    console.log('🔍 getProducts: Sample products:', processedProducts.slice(0, 2));
+
+    return {
+      products: processedProducts,
+      pagination: response.data.pagination,
+      filters: response.data.filters
+    };
   } catch (error) {
-    console.error('Error fetching products:', error);
-    return [];
+    console.error('❌ getProducts: Error fetching products:', error);
+    console.error('❌ getProducts: Error details:', {
+      message: error.message,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data
+    });
+    return {
+      products: [],
+      pagination: null,
+      filters: null
+    };
   }
 };
 
 export const getProductById = async (id) => {
   try {
-    const response = await api.get(`/products/${id}`);
+    console.log('🔍 getProductById: Fetching product with ID:', id);
+    const url = `/products/${id}`;
+    console.log('🔍 getProductById: Making request to:', url);
+
+    const response = await api.get(url);
+
+    console.log('✅ getProductById: Response received:', {
+      status: response.status,
+      statusText: response.statusText,
+      hasData: !!response.data?.data,
+      dataKeys: Object.keys(response.data || {})
+    });
+    console.log('🔍 getProductById: Product data:', response.data.data);
+
     return response.data.data;
   } catch (error) {
-    console.error('Error fetching product:', error);
+    console.error('❌ getProductById: Error fetching product:', error);
+    console.error('❌ getProductById: Error details:', {
+      message: error.message,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      url: error.config?.url
+    });
     throw new Error(error.response?.data?.message || 'Failed to fetch product');
   }
 };

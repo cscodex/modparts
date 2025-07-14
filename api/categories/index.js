@@ -1,16 +1,11 @@
 const { supabase } = require('../../lib/supabase')
 
 module.exports = async function handler(req, res) {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-  res.setHeader('Access-Control-Allow-Credentials', 'true')
+  console.log('🔍 Categories API called')
+  console.log('Request method:', req.method)
+  console.log('Request URL:', req.url)
 
-  if (req.method === 'OPTIONS') {
-    res.status(200).end()
-    return
-  }
+  // CORS is handled by dev-server middleware
 
   try {
     if (req.method === 'GET') {
@@ -21,9 +16,12 @@ module.exports = async function handler(req, res) {
         .order('name', { ascending: true })
 
       if (error) {
-        console.error('Error fetching categories:', error)
+        console.error('❌ Error fetching categories:', error)
         return res.status(500).json({ message: 'Failed to fetch categories' })
       }
+
+      console.log('✅ Categories fetched successfully:', categories.length, 'categories')
+      console.log('📋 Categories:', categories.map(c => ({ id: c.id, name: c.name })))
 
       res.status(200).json({
         message: 'Categories retrieved successfully',

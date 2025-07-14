@@ -142,7 +142,8 @@ module.exports = async function handler(req, res) {
 
       return res.status(201).json({
         message: 'Order created successfully',
-        data: order
+        data: order,
+        order_id: order.id
       })
 
     } else {

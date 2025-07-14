@@ -6,8 +6,8 @@ import axios from 'axios';
 // For Vercel deployment, use relative path /api
 const isDevelopment = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost'
 export const API_URL = isDevelopment ? "http://localhost:3000/api" : "/api";
-// Add a cache-busting version parameter
-const API_VERSION = new Date().getTime(); // Use current timestamp as version
+// Temporarily disable cache-busting to debug issues
+export const API_VERSION = null; // Disabled for debugging
 
 // Log API URL for debugging
 console.log('=== API CONFIGURATION ===');
@@ -21,10 +21,11 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json'
   },
-  withCredentials: true, // Enable cookies for session handling
-  params: {
-    v: API_VERSION // Add cache-busting version parameter to all requests
-  }
+  withCredentials: true // Enable cookies for session handling
+  // Temporarily disable cache-busting params for debugging
+  // params: {
+  //   v: API_VERSION // Add cache-busting version parameter to all requests
+  // }
 });
 
 // Add a request interceptor to include the token in all requests and log requests

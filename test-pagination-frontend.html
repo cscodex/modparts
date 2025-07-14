@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Pagination</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .product-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .pagination button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .pagination button:hover {
+            background: #f0f0f0;
+        }
+        .pagination button.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            align-items: center;
+        }
+        .controls select, .controls input {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .info {
+            text-align: center;
+            color: #666;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Products Pagination Test</h1>
+    
+    <div class="controls">
+        <label>Items per page:</label>
+        <select id="itemsPerPage">
+            <option value="6">6</option>
+            <option value="12" selected>12</option>
+            <option value="24">24</option>
+            <option value="48">48</option>
+        </select>
+        
+        <label>Search:</label>
+        <input type="text" id="searchInput" placeholder="Search products...">
+        
+        <label>Sort by:</label>
+        <select id="sortBy">
+            <option value="created_at">Date Created</option>
+            <option value="name">Name</option>
+            <option value="price">Price</option>
+        </select>
+        
+        <select id="sortOrder">
+            <option value="desc">Descending</option>
+            <option value="asc">Ascending</option>
+        </select>
+        
+        <button onclick="loadProducts()">Apply</button>
+    </div>
+    
+    <div class="info" id="info">Loading...</div>
+    
+    <div class="product-grid" id="productGrid">
+        <!-- Products will be loaded here -->
+    </div>
+    
+    <div class="pagination" id="pagination">
+        <!-- Pagination will be loaded here -->
+    </div>
+
+    <script>
+        let currentPage = 1;
+        let totalPages = 1;
+        let totalItems = 0;
+        
+        async function loadProducts() {
+            const itemsPerPage = document.getElementById('itemsPerPage').value;
+            const search = document.getElementById('searchInput').value;
+            const sortBy = document.getElementById('sortBy').value;
+            const sortOrder = document.getElementById('sortOrder').value;
+            
+            const params = new URLSearchParams({
+                page: currentPage,
+                limit: itemsPerPage,
+                sortBy: sortBy,
+                sortOrder: sortOrder
+            });
+            
+            if (search) {
+                params.append('search', search);
+            }
+            
+            try {
+                const response = await fetch(`http://localhost:3000/api/products?${params}`);
+                const data = await response.json();
+                
+                if (data.data) {
+                    displayProducts(data.data);
+                    updatePagination(data.pagination);
+                    updateInfo(data.pagination);
+                } else {
+                    document.getElementById('productGrid').innerHTML = '<p>No products found</p>';
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+                document.getElementById('productGrid').innerHTML = '<p>Error loading products</p>';
+            }
+        }
+        
+        function displayProducts(products) {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = products.map(product => `
+                <div class="product-card">
+                    <h3>${product.name}</h3>
+                    <p><strong>$${parseFloat(product.price).toFixed(2)}</strong></p>
+                    <p>Condition: ${product.condition_status}</p>
+                    <p>Stock: ${product.quantity}</p>
+                    <p>Category: ${product.categories?.name || 'N/A'}</p>
+                </div>
+            `).join('');
+        }
+        
+        function updatePagination(pagination) {
+            if (!pagination) return;
+            
+            totalPages = pagination.totalPages;
+            totalItems = pagination.totalItems;
+            currentPage = pagination.currentPage;
+            
+            const paginationDiv = document.getElementById('pagination');
+            let html = '';
+            
+            // Previous button
+            html += `<button onclick="goToPage(${currentPage - 1})" ${!pagination.hasPrevPage ? 'disabled' : ''}>Previous</button>`;
+            
+            // Page numbers
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, currentPage + 2);
+            
+            if (startPage > 1) {
+                html += `<button onclick="goToPage(1)">1</button>`;
+                if (startPage > 2) html += '<span>...</span>';
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<button onclick="goToPage(${i})" ${i === currentPage ? 'class="active"' : ''}>${i}</button>`;
+            }
+            
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) html += '<span>...</span>';
+                html += `<button onclick="goToPage(${totalPages})">${totalPages}</button>`;
+            }
+            
+            // Next button
+            html += `<button onclick="goToPage(${currentPage + 1})" ${!pagination.hasNextPage ? 'disabled' : ''}>Next</button>`;
+            
+            paginationDiv.innerHTML = html;
+        }
+        
+        function updateInfo(pagination) {
+            if (!pagination) return;
+            
+            const start = ((pagination.currentPage - 1) * pagination.itemsPerPage) + 1;
+            const end = Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems);
+            
+            document.getElementById('info').textContent = 
+                `Showing ${start} to ${end} of ${pagination.totalItems} products (Page ${pagination.currentPage} of ${pagination.totalPages})`;
+        }
+        
+        function goToPage(page) {
+            if (page >= 1 && page <= totalPages) {
+                currentPage = page;
+                loadProducts();
+            }
+        }
+        
+        // Event listeners
+        document.getElementById('itemsPerPage').addEventListener('change', () => {
+            currentPage = 1;
+            loadProducts();
+        });
+        
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                currentPage = 1;
+                loadProducts();
+            }
+        });
+        
+        // Load initial products
+        loadProducts();
+    </script>
+</body>
+</html>

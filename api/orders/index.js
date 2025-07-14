@@ -1,4 +1,4 @@
-const { supabase } = require('../../lib/supabase')
+const { supabase, supabaseAdmin } = require('../../lib/supabase')
 const jwt = require('jsonwebtoken')
 
 // Helper function to verify JWT token
@@ -17,16 +17,7 @@ function verifyToken(req) {
 }
 
 module.exports = async function handler(req, res) {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-  res.setHeader('Access-Control-Allow-Credentials', 'true')
-
-  if (req.method === 'OPTIONS') {
-    res.status(200).end()
-    return
-  }
+  // CORS is handled by dev-server middleware
 
   // Verify authentication
   const user = verifyToken(req)
@@ -35,18 +26,48 @@ module.exports = async function handler(req, res) {
   }
 
   try {
+    console.log('🔍 Orders API - User from JWT:', user)
+
+    // Check if user exists in database
+    // User IDs are UUIDs (strings), so use them as-is
+    const userId = user.id;
+
+    const { data: existingUser, error: userCheckError } = await supabaseAdmin
+      .from('users')
+      .select('id, email, role')
+      .eq('id', userId)
+      .single()
+
+    console.log('🔍 Database user check result:', { existingUser, userCheckError })
+
+    if (userCheckError) {
+      console.error('❌ User not found in database. JWT user ID:', user.id, 'Type:', typeof user.id)
+      console.error('❌ Database error:', userCheckError)
+
+      // Instead of creating a user, return a more helpful error
+      return res.status(400).json({
+        message: 'User account not found. Please log in again.',
+        error: 'USER_NOT_FOUND',
+        details: 'The user ID from your session does not exist in the database. Please log out and log in again.',
+        debug: {
+          userId: user.id,
+          userIdType: typeof user.id,
+          error: userCheckError.message
+        }
+      })
+    }
     if (req.method === 'GET') {
       // Get orders - simplified query to avoid foreign key relationship issues
       console.log('🔍 Fetching orders for user:', user.id)
 
-      let query = supabase
+      let query = supabaseAdmin
         .from('orders')
         .select('*')
         .order('created_at', { ascending: false })
 
       // If not admin, only show user's own orders
       if (user.role !== 'admin') {
-        query = query.eq('user_id', user.id)
+        query = query.eq('user_id', userId)
       }
 
       const { data: orders, error } = await query
@@ -113,20 +134,60 @@ module.exports = async function handler(req, res) {
 
     } else if (req.method === 'POST') {
       // Create new order
-      const { shipping_address, payment_method, items } = req.body
+      console.log('=== ORDER CREATION REQUEST ===')
+      console.log('Request body:', req.body)
+      console.log('User:', user)
+
+      const {
+        shipping_address,
+        payment_method,
+        items,
+        payment_status,
+        transaction_id,
+        reference_number,
+        order_number,
+        first_name,
+        last_name,
+        email,
+        city,
+        state,
+        zip_code,
+        phone
+      } = req.body
+
+      console.log('Extracted fields:', {
+        shipping_address,
+        payment_method,
+        items: items?.length,
+        payment_status,
+        transaction_id,
+        reference_number,
+        order_number,
+        first_name,
+        last_name,
+        email,
+        city,
+        state,
+        zip_code,
+        phone
+      })
+
+      // Note: Additional fields like payment_status, transaction_id, etc. are received from frontend
+      // but not stored in the current database schema. Only core order fields are stored.
 
       if (!shipping_address || !payment_method || !items || items.length === 0) {
-        return res.status(400).json({ 
-          message: 'Shipping address, payment method, and items are required' 
+        console.log('Validation failed:', { shipping_address: !!shipping_address, payment_method: !!payment_method, items: items?.length })
+        return res.status(400).json({
+          message: 'Shipping address, payment method, and items are required'
         })
       }
 
       // Start a transaction
-      const { data: order, error: orderError } = await supabase
+      const { data: order, error: orderError } = await supabaseAdmin
         .from('orders')
         .insert([
           {
-            user_id: user.id,
+            user_id: userId, // Use the properly typed user ID
             total_amount: 0, // Will be calculated
             status: 'pending',
             shipping_address,
@@ -138,7 +199,22 @@ module.exports = async function handler(req, res) {
 
       if (orderError) {
         console.error('Error creating order:', orderError)
-        return res.status(500).json({ message: 'Failed to create order' })
+        console.error('Order data that failed:', {
+          user_id: userId,
+          original_user_id: user.id,
+          user_id_type: typeof userId,
+          shipping_address,
+          payment_method
+        })
+        return res.status(500).json({
+          message: 'Failed to create order',
+          error: orderError.message,
+          debug: {
+            userId: userId,
+            originalUserId: user.id,
+            userIdType: typeof userId
+          }
+        })
       }
 
       // Add order items and calculate total
@@ -147,7 +223,7 @@ module.exports = async function handler(req, res) {
 
       for (const item of items) {
         // Get current product price and check availability
-        const { data: product, error: productError } = await supabase
+        const { data: product, error: productError } = await supabaseAdmin
           .from('products')
           .select('id, price, quantity')
           .eq('id', item.product_id)
@@ -155,17 +231,17 @@ module.exports = async function handler(req, res) {
 
         if (productError || !product) {
           // Rollback by deleting the order
-          await supabase.from('orders').delete().eq('id', order.id)
-          return res.status(404).json({ 
-            message: `Product with ID ${item.product_id} not found` 
+          await supabaseAdmin.from('orders').delete().eq('id', order.id)
+          return res.status(404).json({
+            message: `Product with ID ${item.product_id} not found`
           })
         }
 
         if (product.quantity < item.quantity) {
           // Rollback by deleting the order
-          await supabase.from('orders').delete().eq('id', order.id)
-          return res.status(400).json({ 
-            message: `Insufficient quantity for product ID ${item.product_id}` 
+          await supabaseAdmin.from('orders').delete().eq('id', order.id)
+          return res.status(400).json({
+            message: `Insufficient quantity for product ID ${item.product_id}`
           })
         }
 
@@ -180,26 +256,26 @@ module.exports = async function handler(req, res) {
         })
 
         // Update product quantity
-        await supabase
+        await supabaseAdmin
           .from('products')
           .update({ quantity: product.quantity - item.quantity })
           .eq('id', item.product_id)
       }
 
       // Insert order items
-      const { error: itemsError } = await supabase
+      const { error: itemsError } = await supabaseAdmin
         .from('order_items')
         .insert(orderItems)
 
       if (itemsError) {
         console.error('Error creating order items:', itemsError)
         // Rollback by deleting the order
-        await supabase.from('orders').delete().eq('id', order.id)
+        await supabaseAdmin.from('orders').delete().eq('id', order.id)
         return res.status(500).json({ message: 'Failed to create order items' })
       }
 
       // Update order total
-      const { data: updatedOrder, error: updateError } = await supabase
+      const { data: updatedOrder, error: updateError } = await supabaseAdmin
         .from('orders')
         .update({ total_amount: totalAmount })
         .eq('id', order.id)
@@ -212,14 +288,15 @@ module.exports = async function handler(req, res) {
       }
 
       // Clear user's cart
-      await supabase
+      await supabaseAdmin
         .from('cart_items')
         .delete()
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
 
       res.status(201).json({
         message: 'Order created successfully',
-        data: updatedOrder
+        data: updatedOrder,
+        order_id: updatedOrder.id
       })
 
     } else {

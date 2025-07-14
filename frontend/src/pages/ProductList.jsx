@@ -6,6 +6,7 @@ import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { processImageUrl, handleImageError } from '../utils/imageHelper';
 import RangeSlider from '../components/RangeSlider';
+import Pagination from '../components/ui/Pagination';
 
 const ProductList = () => {
   const { categoryId } = useParams();
@@ -16,6 +17,11 @@ const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Pagination state
+  const [pagination, setPagination] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(12);
 
   // Price range state with fixed min and max values
   const [priceRange, setPriceRange] = useState({ min: 0, max: 99999 });
@@ -63,9 +69,6 @@ const ProductList = () => {
           id: String(category.id)
         }));
 
-        console.log('Fetched categories:', processedCategories);
-        console.log('Category IDs:', processedCategories.map(c => ({ id: c.id, type: typeof c.id })));
-
         setCategories(processedCategories);
       } catch (error) {
         console.error('Error fetching categories:', error);
@@ -78,13 +81,21 @@ const ProductList = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
+
       try {
-        let data;
+        let result;
 
         if (searchQuery) {
-          data = await searchProducts(searchQuery);
+          console.log('📝 Using search API for query:', searchQuery);
+          // For search, use the old API for now
+          const data = await searchProducts(searchQuery);
+          result = { products: data, pagination: null };
         } else if (categoryId) {
-          data = await getProductsByCategory(categoryId);
+          console.log('📂 Using category API for category:', categoryId);
+          // For category filtering, use the old API for now
+          const data = await getProductsByCategory(categoryId);
+          result = { products: data, pagination: null };
+
           // Ensure categoryId is stored as a string
           const categoryIdStr = String(categoryId);
           setSelectedCategory(categoryIdStr);
@@ -92,22 +103,35 @@ const ProductList = () => {
           // Update selectedCategories for the new multi-select filter
           setSelectedCategories([categoryIdStr]);
         } else {
-          data = await getProducts();
+          console.log('📄 Using paginated API for general listing');
+          // Use new paginated API for general product listing with category filters
+          result = await getProducts({
+            page: currentPage,
+            limit: itemsPerPage,
+            sortBy: 'created_at',
+            sortOrder: 'desc',
+            categories: selectedCategories.length > 0 ? selectedCategories.join(',') : undefined
+          });
         }
 
-        setProducts(data);
+
+
+        setProducts(result.products || []);
+        setPagination(result.pagination);
 
         // We don't modify the price range min/max values based on products
         // They remain fixed at min: 0, max: 99999
       } catch (error) {
         console.error('Error fetching products:', error);
+        setProducts([]);
+        setPagination(null);
       } finally {
         setLoading(false);
       }
     };
 
     fetchProducts();
-  }, [categoryId, searchQuery]);
+  }, [categoryId, searchQuery, currentPage, itemsPerPage, selectedCategories]);
 
   // Clear all filters
   const clearAllFilters = () => {
@@ -139,22 +163,13 @@ const ProductList = () => {
 
   // Multi-select category filter handler
   const handleCategoryCheckboxChange = (categoryId) => {
-    console.log('Category checkbox changed:', categoryId);
-    console.log('Current selected categories:', selectedCategories);
-
     setSelectedCategories(prev => {
       // If category is already selected, remove it
       if (prev.includes(categoryId)) {
-        console.log('Removing category from selection:', categoryId);
-        const newSelection = prev.filter(id => id !== categoryId);
-        console.log('New selection after removal:', newSelection);
-        return newSelection;
+        return prev.filter(id => id !== categoryId);
       }
       // Otherwise add it
-      console.log('Adding category to selection:', categoryId);
-      const newSelection = [...prev, categoryId];
-      console.log('New selection after addition:', newSelection);
-      return newSelection;
+      return [...prev, categoryId];
     });
   };
 
@@ -181,26 +196,11 @@ const ProductList = () => {
     setSortOption(e.target.value);
   };
 
-  // Apply filters and sorting
+
+
+  // Apply filters and sorting (category filtering is now done on backend)
   const filteredAndSortedProducts = [...products]
     .filter(product => {
-      // Category filtering - multi-select
-      const categoryFilter = selectedCategories.length === 0 ||
-        selectedCategories.includes(String(product.category_id));
-
-      // Debug category filtering
-      if (selectedCategories.length > 0 && !categoryFilter) {
-        console.log(`Product ${product.name} (ID: ${product.id}) filtered out by category.`);
-        console.log(`  Product category_id: ${product.category_id} (${typeof product.category_id})`);
-        console.log(`  Selected categories: ${JSON.stringify(selectedCategories)}`);
-        console.log(`  Includes check: ${selectedCategories.includes(String(product.category_id))}`);
-        console.log(`  Direct comparison: ${selectedCategories.some(id => id === String(product.category_id))}`);
-      }
-
-      // Legacy category filter (for backward compatibility)
-      const legacyCategoryFilter = selectedCategory === 'all' ||
-        String(product.category_id) === String(selectedCategory);
-
       // Price range filtering
       const productPrice = parseFloat(product.price);
       const priceRangeFilter =
@@ -219,20 +219,8 @@ const ProductList = () => {
         availabilityFilter = product.quantity <= 0;
       }
 
-      // Apply all filters
-      const result = categoryFilter && legacyCategoryFilter && priceRangeFilter && availabilityFilter;
-
-      // Debug overall filtering
-      if (selectedCategories.length > 0 && !result) {
-        console.log(`Product ${product.name} filtered out. Filters:`, {
-          categoryFilter,
-          legacyCategoryFilter,
-          priceRangeFilter,
-          availabilityFilter
-        });
-      }
-
-      return result;
+      // Apply remaining filters (category filtering is handled by backend)
+      return priceRangeFilter && availabilityFilter;
     })
     .sort((a, b) => {
       switch (sortOption) {
@@ -248,6 +236,13 @@ const ProductList = () => {
           return 0;
       }
     });
+
+  // Debug filtered results
+  console.log('🔍 ProductList: After filtering:', {
+    originalCount: products.length,
+    filteredCount: filteredAndSortedProducts.length,
+    sampleFiltered: filteredAndSortedProducts.slice(0, 2).map(p => ({ id: p.id, name: p.name }))
+  });
 
   const handleAddToCart = (product) => {
     addToCart(product);
@@ -586,9 +581,17 @@ const ProductList = () => {
 
           {loading ? (
             <div className="text-center py-8">Loading products...</div>
+          ) : products.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-xl text-gray-600">No products available.</p>
+              <p className="text-sm text-gray-500 mt-2">Check your internet connection or try refreshing the page.</p>
+            </div>
           ) : filteredAndSortedProducts.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-xl text-gray-600">No products found.</p>
+              <p className="text-xl text-gray-600">No products match your filters.</p>
+              <p className="text-sm text-gray-500 mt-2">
+                Found {products.length} total products, but none match your current filters.
+              </p>
               {(selectedCategories.length > 0 ||
                 (priceRange.min > 0 || priceRange.max < 99999) ||
                 availabilityFilters.inStock ||
@@ -597,7 +600,7 @@ const ProductList = () => {
                   onClick={clearAllFilters}
                   className="mt-4 text-blue-600 hover:text-blue-800"
                 >
-                  Clear all filters to see more products
+                  Clear all filters to see all {products.length} products
                 </button>
               )}
             </div>
@@ -658,6 +661,23 @@ const ProductList = () => {
                 </div>
               ))}
             </div>
+
+            {/* Pagination - show when using backend pagination */}
+            {!searchQuery && !categoryId && pagination && (
+              <div className="mt-8">
+                <Pagination
+                  totalItems={pagination.totalItems}
+                  itemsPerPage={itemsPerPage}
+                  currentPage={currentPage}
+                  onPageChange={setCurrentPage}
+                  onItemsPerPageChange={setItemsPerPage}
+                />
+
+                <div className="mt-4 text-sm text-gray-600 text-center">
+                  Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, pagination.totalItems)} of {pagination.totalItems} products
+                </div>
+              </div>
+            )}
             </>
           )}
         </div>

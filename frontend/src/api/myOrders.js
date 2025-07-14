@@ -8,14 +8,37 @@ export const fetchMyOrders = async () => {
     const response = await api.get('/orders');
     console.log('Orders fetched successfully:', response.data);
 
+    // Extract orders from response
+    let orders = [];
     if (response.data && response.data.data) {
-      return response.data.data;
+      orders = response.data.data;
     } else if (Array.isArray(response.data)) {
-      return response.data;
+      orders = response.data;
     } else {
       console.warn('Unexpected response format:', response.data);
       return [];
     }
+
+    // Transform each order to match frontend expectations
+    const transformedOrders = orders.map(order => ({
+      ...order,
+      // Map order_items to items and transform the structure
+      items: (order.order_items || []).map(item => {
+        console.log('Transforming order item:', item);
+        return {
+          id: item.id,
+          product_id: item.product_id,
+          quantity: item.quantity || 0,
+          price: item.price || 0,
+          // Extract product name from nested product object
+          product_name: item.product?.name || 'Unknown Product',
+          // Include other item fields if needed
+          ...item
+        };
+      })
+    }));
+
+    return transformedOrders;
   } catch (error) {
     console.error('Error fetching orders:', error);
 
@@ -34,12 +57,35 @@ export const createTestOrder = async () => {
   console.log('=== CREATING TEST ORDER ===');
 
   try {
-    const response = await axios.get(`${API_URL}/my_orders.php?create_test=true&v=${API_VERSION}`, {
-      withCredentials: true
-    });
+    // Create a test order using the Node.js API
+    const testOrderData = {
+      shipping_address: 'Test Address, Test City, Test State 12345',
+      payment_method: 'test',
+      items: [
+        {
+          product_id: 1,
+          quantity: 1,
+          price: 10.00
+        }
+      ],
+      payment_status: 'completed',
+      transaction_id: 'test_' + Date.now(),
+      reference_number: 'TEST_' + Date.now(),
+      order_number: 'ORD_' + Date.now(),
+      first_name: 'Test',
+      last_name: 'User',
+      email: 'test@example.com',
+      city: 'Test City',
+      state: 'Test State',
+      zip_code: '12345',
+      phone: '555-0123'
+    };
 
+    const response = await api.post('/orders', testOrderData);
     console.log('Test order created successfully:', response.data);
-    return response.data.records || [];
+
+    // Return the created order in an array format for consistency
+    return response.data.data ? [response.data.data] : [];
   } catch (error) {
     console.error('Error creating test order:', error);
 
@@ -58,12 +104,49 @@ export const fetchOrderById = async (orderId) => {
   console.log('=== FETCHING ORDER BY ID ===', orderId);
 
   try {
-    const response = await axios.get(`${API_URL}/my_orders.php?id=${orderId}&v=${API_VERSION}`, {
-      withCredentials: true
-    });
+    // Use the Node.js API endpoint to get all orders, then filter by ID
+    const response = await api.get('/orders');
+    console.log('Orders fetched successfully:', response.data);
 
-    console.log('Order fetched successfully:', response.data);
-    return response.data;
+    // Extract orders from response
+    let orders = [];
+    if (response.data && response.data.data) {
+      orders = response.data.data;
+    } else if (Array.isArray(response.data)) {
+      orders = response.data;
+    }
+
+    // Find the specific order by ID
+    const order = orders.find(order => order.id == orderId);
+
+    if (order) {
+      console.log('Order found:', order);
+
+      // Transform the order data to match frontend expectations
+      const transformedOrder = {
+        ...order,
+        // Map order_items to items and transform the structure
+        items: (order.order_items || []).map(item => {
+          console.log('Transforming order item for single order:', item);
+          return {
+            id: item.id,
+            product_id: item.product_id,
+            quantity: item.quantity || 0,
+            price: item.price || 0,
+            // Extract product name from nested product object
+            product_name: item.product?.name || 'Unknown Product',
+            // Include other item fields if needed
+            ...item
+          };
+        })
+      };
+
+      console.log('Transformed order:', transformedOrder);
+      return transformedOrder;
+    } else {
+      console.log('Order not found with ID:', orderId);
+      return null;
+    }
   } catch (error) {
     console.error('Error fetching order:', error);
 

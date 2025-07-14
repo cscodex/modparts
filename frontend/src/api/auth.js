@@ -65,9 +65,15 @@ export const updateUserProfile = async (userData) => {
 
 export const getUserProfile = async () => {
   try {
-    console.log('Fetching user profile');
+    console.log('🔍 getUserProfile: Fetching user profile');
     const response = await api.get('/users/profile');
-    console.log('Get profile response:', response.data);
+    console.log('✅ getUserProfile: Response received:', {
+      status: response.status,
+      statusText: response.statusText,
+      hasData: !!response.data,
+      dataKeys: Object.keys(response.data || {})
+    });
+    console.log('🔍 getUserProfile: Full response data:', response.data);
 
     // Update the stored user data with the latest from the server
     const storedUser = localStorage.getItem('user');
@@ -75,12 +81,18 @@ export const getUserProfile = async () => {
       const user = JSON.parse(storedUser);
       const updatedUser = { ...user, ...response.data.data };
       localStorage.setItem('user', JSON.stringify(updatedUser));
+      console.log('🔍 getUserProfile: Updated stored user data');
     }
 
     return response.data;
   } catch (error) {
-    console.error('Get profile error:', error);
-    console.error('Error response:', error.response);
+    console.error('❌ getUserProfile: Error fetching profile:', error);
+    console.error('❌ getUserProfile: Error details:', {
+      message: error.message,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data
+    });
     throw new Error(error.response?.data?.message || 'Failed to fetch profile');
   }
 };
