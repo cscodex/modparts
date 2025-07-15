@@ -94,7 +94,7 @@ module.exports = async function handler(req, res) {
           condition_status,
           price: parseFloat(price),
           quantity: parseInt(quantity),
-          category_id: category_id || null,
+          category_id: category_id ? parseInt(category_id) : null,
           image_url: image_url || null,
           updated_at: new Date().toISOString()
         })

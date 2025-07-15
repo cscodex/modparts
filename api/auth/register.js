@@ -1,6 +1,7 @@
 const { supabaseAdmin } = require('../../lib/supabase')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const { generateVerificationToken, getExpirationTime, sendVerificationEmail } = require('../../lib/emailService')
 
 module.exports = async function handler(req, res) {
   // CORS is handled by dev-server middleware
@@ -35,6 +36,10 @@ module.exports = async function handler(req, res) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10)
 
+    // Generate email verification token
+    const verificationToken = generateVerificationToken()
+    const verificationExpires = getExpirationTime()
+
     // Create user in Supabase using admin client to bypass RLS
     const { data: newUser, error } = await supabaseAdmin
       .from('users')
@@ -46,7 +51,11 @@ module.exports = async function handler(req, res) {
           last_name,
           phone: phone || null,
           address: address || null,
-          role: 'customer'
+          role: 'customer',
+          email_verified: false,
+          email_verification_token: verificationToken,
+          email_verification_expires: verificationExpires.toISOString(),
+          email_verification_sent_at: new Date().toISOString()
         }
       ])
       .select()
@@ -84,19 +93,30 @@ module.exports = async function handler(req, res) {
       { expiresIn: '24h' }
     )
 
-    console.log('🔑 JWT token created for user ID:', newUser.id)
+    // Send verification email
+    try {
+      await sendVerificationEmail(email, first_name, verificationToken)
+      console.log('✅ Verification email sent successfully')
+    } catch (emailError) {
+      console.error('❌ Failed to send verification email:', emailError)
+      // Don't fail registration if email fails - user can request resend
+    }
 
-    // Return user data and token
+    // Don't generate JWT token yet - user needs to verify email first
+    console.log('✅ Registration completed - verification email sent')
+
+    // Return user data without token (user needs to verify email first)
     res.status(201).json({
-      message: 'Registration successful',
-      token,
+      message: 'Registration successful! Please check your email to verify your account.',
       user: {
         id: newUser.id,
         email: newUser.email,
         first_name: newUser.first_name,
         last_name: newUser.last_name,
-        role: newUser.role
-      }
+        role: newUser.role,
+        email_verified: false
+      },
+      verification_required: true
     })
 
   } catch (error) {

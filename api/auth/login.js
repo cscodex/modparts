@@ -43,17 +43,27 @@ module.exports = async function handler(req, res) {
 
     // Verify password
     const isValidPassword = await bcrypt.compare(password, user.password)
-    
+
     if (!isValidPassword) {
       return res.status(401).json({ message: 'Invalid credentials' })
     }
 
+    // Check if email is verified
+    if (!user.email_verified) {
+      console.log('Login blocked: Email not verified for user:', user.email)
+      return res.status(403).json({
+        message: 'Please verify your email address before logging in.',
+        email_verification_required: true,
+        email: user.email
+      })
+    }
+
     // Generate JWT token
     const token = jwt.sign(
-      { 
-        id: user.id, 
-        email: user.email, 
-        role: user.role 
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role
       },
       process.env.JWT_SECRET || 'fallback-secret',
       { expiresIn: '24h' }

@@ -53,6 +53,16 @@ module.exports = async function handler(req, res) {
         })
       }
 
+      console.log('🔍 Creating product with data:', {
+        name,
+        description,
+        condition_status,
+        price,
+        quantity,
+        category_id,
+        image_url
+      })
+
       const { data: product, error } = await supabase
         .from('products')
         .insert([
@@ -62,7 +72,7 @@ module.exports = async function handler(req, res) {
             condition_status,
             price: parseFloat(price),
             quantity: parseInt(quantity),
-            category_id: category_id || null,
+            category_id: category_id ? parseInt(category_id) : null,
             image_url: image_url || null
           }
         ])
@@ -70,10 +80,20 @@ module.exports = async function handler(req, res) {
         .single()
 
       if (error) {
-        console.error('Error creating product:', error)
-        return res.status(500).json({ message: 'Failed to create product' })
+        console.error('❌ Supabase error creating product:', error)
+        console.error('❌ Error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        })
+        return res.status(500).json({
+          message: 'Failed to create product',
+          error: error.message
+        })
       }
 
+      console.log('✅ Product created successfully:', product)
       res.status(201).json({
         message: 'Product created successfully',
         data: product

@@ -93,9 +93,25 @@ module.exports = async function handler(req, res) {
       // Create new product (admin only)
       const { name, description, condition_status, price, quantity, category_id, image_url } = req.body
 
+      console.log('🔍 Creating product with data:', {
+        name,
+        description,
+        condition_status,
+        price,
+        quantity,
+        category_id,
+        image_url
+      })
+
       if (!name || !condition_status || !price || price < 0 || quantity < 0) {
-        return res.status(400).json({ 
-          message: 'Name, condition status, valid price, and quantity are required' 
+        console.error('❌ Product validation failed:', {
+          name: !!name,
+          condition_status: !!condition_status,
+          price: price,
+          quantity: quantity
+        })
+        return res.status(400).json({
+          message: 'Name, condition status, valid price, and quantity are required'
         })
       }
 
@@ -108,7 +124,7 @@ module.exports = async function handler(req, res) {
             condition_status,
             price: parseFloat(price),
             quantity: parseInt(quantity),
-            category_id: category_id || null,
+            category_id: category_id ? parseInt(category_id) : null,
             image_url: image_url || null
           }
         ])
@@ -116,10 +132,20 @@ module.exports = async function handler(req, res) {
         .single()
 
       if (error) {
-        console.error('Error creating product:', error)
-        return res.status(500).json({ message: 'Failed to create product' })
+        console.error('❌ Supabase error creating product:', error)
+        console.error('❌ Error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        })
+        return res.status(500).json({
+          message: 'Failed to create product',
+          error: error.message
+        })
       }
 
+      console.log('✅ Product created successfully:', product)
       res.status(201).json({
         message: 'Product created successfully',
         data: product
