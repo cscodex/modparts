@@ -335,6 +335,84 @@ module.exports = async function handler(req, res) {
         })
       }
 
+    } else if (req.method === 'PUT') {
+      // Import cart items (for migrating from localStorage to database)
+      const { items, import_mode } = req.body
+
+      if (import_mode === 'import' && Array.isArray(items)) {
+        console.log('🔄 Importing cart items for user:', user.id, 'Items:', items.length);
+
+        try {
+          // Clear existing cart first
+          const { error: clearError } = await supabaseAdmin
+            .from('cart_items')
+            .delete()
+            .eq('user_id', user.id)
+
+          if (clearError) {
+            console.error('Error clearing cart for import:', clearError)
+            return res.status(500).json({ message: 'Failed to clear existing cart' })
+          }
+
+          let successCount = 0;
+          let errorCount = 0;
+
+          // Add each item to the cart
+          for (const item of items) {
+            if (item.product_id && item.quantity > 0) {
+              try {
+                // Check if product exists and is in stock
+                const { data: product, error: productError } = await supabase
+                  .from('products')
+                  .select('id, quantity')
+                  .eq('id', item.product_id)
+                  .single()
+
+                if (productError || !product) {
+                  console.warn('Product not found for import:', item.product_id)
+                  errorCount++
+                  continue
+                }
+
+                // Add to cart
+                const { error: insertError } = await supabaseAdmin
+                  .from('cart_items')
+                  .insert({
+                    user_id: user.id,
+                    product_id: item.product_id,
+                    quantity: Math.min(item.quantity, product.quantity) // Don't exceed stock
+                  })
+
+                if (insertError) {
+                  console.error('Error inserting cart item:', insertError)
+                  errorCount++
+                } else {
+                  successCount++
+                }
+              } catch (itemError) {
+                console.error('Error processing cart item:', itemError)
+                errorCount++
+              }
+            } else {
+              errorCount++
+            }
+          }
+
+          console.log(`✅ Cart import completed: ${successCount} success, ${errorCount} errors`)
+
+          return res.status(200).json({
+            message: 'Cart imported successfully',
+            success_count: successCount,
+            error_count: errorCount
+          })
+        } catch (importError) {
+          console.error('Cart import error:', importError)
+          return res.status(500).json({ message: 'Failed to import cart' })
+        }
+      } else {
+        return res.status(400).json({ message: 'Invalid import request' })
+      }
+
     } else if (req.method === 'DELETE') {
       // Handle different DELETE operations based on query parameters
       const { cart_item_id, product_id, clear_all } = req.query;

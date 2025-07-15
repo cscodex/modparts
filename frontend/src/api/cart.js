@@ -132,35 +132,16 @@ export const importCart = async (cartItems) => {
   console.log('Cart items:', cartItems);
 
   try {
-    // Try multiple endpoint paths to ensure one works
-    const endpointPaths = [
-      '/controllers/cart/import.php',
-      '/cart/import.php'
-    ];
+    // Use the new Node.js cart API with PUT method for import
+    const response = await api.put('/cart', {
+      items: cartItems,
+      import_mode: 'import'
+    });
 
-    let lastError = null;
-
-    // Try each endpoint path
-    for (const path of endpointPaths) {
-      try {
-        console.log(`Trying import cart endpoint: ${path}`);
-        const response = await api.post(path, {
-          items: cartItems
-        });
-        console.log(`Import cart endpoint successful: ${path}`);
-        console.log('Response data:', response.data);
-        return response.data;
-      } catch (error) {
-        console.error(`Import cart endpoint failed: ${path}`, error);
-        lastError = error;
-        // Continue to the next endpoint
-      }
-    }
-
-    // If we get here, all endpoints failed
-    throw lastError || new Error('All import cart endpoints failed');
+    console.log('Import cart successful:', response.data);
+    return response.data;
   } catch (error) {
-    console.error('=== FRONTEND: IMPORT CART ERROR (ALL ATTEMPTS) ===');
+    console.error('=== FRONTEND: IMPORT CART ERROR ===');
     console.error('Error importing cart:', error);
     console.error('Error response:', error.response);
     console.error('Error message:', error.message);
