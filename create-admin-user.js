@@ -38,14 +38,14 @@ async function createAdminUser() {
     }
 
     // Hash the password
-    const password_hash = await bcrypt.hash(adminPassword, 10)
+    const hashedPassword = await bcrypt.hash(adminPassword, 10)
 
     // Create admin user
     const { data: newUser, error: createError } = await supabase
       .from('users')
       .insert([{
         email: adminEmail,
-        password_hash: password_hash,
+        password: hashedPassword,
         first_name: 'Admin',
         last_name: 'User',
         role: 'admin'

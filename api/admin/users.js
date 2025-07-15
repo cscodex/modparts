@@ -88,13 +88,13 @@ module.exports = async (req, res) => {
       console.log('👤 Admin creating new user:', email)
 
       // Hash password
-      const password_hash = await bcrypt.hash(password, 10)
+      const hashedPassword = await bcrypt.hash(password, 10)
 
       const { data: user, error } = await supabase
         .from('users')
         .insert([{
           email,
-          password_hash,
+          password: hashedPassword,
           first_name,
           last_name,
           role
