@@ -48,8 +48,8 @@ module.exports = async function handler(req, res) {
       return res.status(401).json({ message: 'Invalid credentials' })
     }
 
-    // Check if email is verified
-    if (!user.email_verified) {
+    // Check if email is verified (only if email verification is enabled)
+    if (user.email_verified !== undefined && user.email_verified === false) {
       console.log('Login blocked: Email not verified for user:', user.email)
       return res.status(403).json({
         message: 'Please verify your email address before logging in.',
