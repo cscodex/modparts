@@ -3,7 +3,7 @@ services:
     name: yamaha-parts-shop
     env: node
     buildCommand: npm install && cd frontend && npm install --include=dev && npm run build
-    startCommand: node dev-server.js
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production

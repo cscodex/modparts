@@ -1,5 +1,5 @@
 const { supabaseAdmin } = require('../../lib/supabase')
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
 module.exports = async function handler(req, res) {
