@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { processImageUrl, handleImageError } from '../utils/imageHelper';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 import useConfirm from '../hooks/useConfirm';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 const Cart = () => {
   const { cart, total, loading, error, updateQuantity, removeFromCart, clearCart } = useCart();
@@ -80,7 +81,7 @@ const Cart = () => {
 
       {loading ? (
         <div className="text-center py-12 bg-white rounded-lg shadow">
-          <p className="text-xl text-gray-600">Loading your cart...</p>
+          <LoadingSpinner size="xl" text="Loading your cart..." variant="gear" />
         </div>
       ) : error ? (
         <div className="text-center py-12 bg-white rounded-lg shadow">

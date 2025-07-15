@@ -4,6 +4,7 @@ import { getProductById, createProduct, updateProduct, uploadProductImage } from
 import { getCategories } from '../../api/categories';
 import { useToast } from '../../context/ToastContext';
 import { processImageUrl, handleImageError } from '../../utils/imageHelper';
+import { InlineLoader } from '../../components/ui/LoadingSpinner';
 
 const ProductForm = () => {
   const { id } = useParams();
@@ -511,10 +512,14 @@ const ProductForm = () => {
             </Link>
             <button
               type="submit"
-              className="bg-blue-800 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400"
+              className="bg-blue-800 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400 flex items-center justify-center"
               disabled={loading}
             >
-              {loading ? 'Saving...' : isEditMode ? 'Update Product' : 'Create Product'}
+              {loading ? (
+                <InlineLoader text="Saving..." variant="gear" size="sm" />
+              ) : (
+                isEditMode ? 'Update Product' : 'Create Product'
+              )}
             </button>
           </div>
         </form>

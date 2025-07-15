@@ -4,6 +4,7 @@ import { getProductById } from '../api/products';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { processImageUrl, handleImageError } from '../utils/imageHelper';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -72,7 +73,11 @@ const ProductDetail = () => {
   };
 
   if (loading) {
-    return <div className="text-center py-12">Loading product details...</div>;
+    return (
+      <div className="text-center py-12">
+        <LoadingSpinner size="xl" text="Loading product details..." variant="gear" />
+      </div>
+    );
   }
 
   if (error) {

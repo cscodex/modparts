@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { fetchMyOrders } from '../api/myOrders';
 import { updateUserProfile, getUserProfile } from '../api/auth';
+import LoadingSpinner, { InlineLoader } from '../components/ui/LoadingSpinner';
 
 const Profile = () => {
   const { user, isAuthenticated, updateUserData } = useAuth();
@@ -553,10 +554,14 @@ const Profile = () => {
                   </button>
                   <button
                     type="submit"
-                    className="bg-blue-800 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400"
+                    className="bg-blue-800 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400 flex items-center justify-center"
                     disabled={saving}
                   >
-                    {saving ? 'Saving...' : 'Save Changes'}
+                    {saving ? (
+                      <InlineLoader text="Saving..." variant="gear" size="sm" />
+                    ) : (
+                      'Save Changes'
+                    )}
                   </button>
                 </div>
               </form>
@@ -634,7 +639,9 @@ const Profile = () => {
             </div>
 
             {loading ? (
-              <div className="text-center py-4">Loading orders...</div>
+              <div className="text-center py-4">
+                <LoadingSpinner size="md" text="Loading orders..." variant="gear" />
+              </div>
             ) : error ? (
               <div className="text-center py-4 text-red-600">{error}</div>
             ) : orders.length === 0 ? (
