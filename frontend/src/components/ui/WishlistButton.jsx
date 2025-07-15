@@ -14,7 +14,7 @@ const WishlistButton = ({
   const { error: showError } = useToast();
   const [loading, setLoading] = useState(false);
 
-  const inWishlist = isInWishlist(product.id);
+  const inWishlist = isAuthenticated() ? isInWishlist(product.id) : false;
 
   const handleToggleWishlist = async (e) => {
     e.preventDefault();
