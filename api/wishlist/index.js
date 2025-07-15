@@ -22,10 +22,29 @@ module.exports = async function handler(req, res) {
   // Verify authentication
   const user = verifyToken(req)
   if (!user) {
-    return res.status(401).json({ 
+    return res.status(401).json({
       success: false,
-      message: 'Authentication required' 
+      message: 'Authentication required'
     })
+  }
+
+  // Check if wishlist_items table exists
+  try {
+    const { data: tableCheck, error: tableError } = await supabase
+      .from('wishlist_items')
+      .select('count')
+      .limit(1)
+
+    if (tableError && tableError.code === 'PGRST116') {
+      return res.status(500).json({
+        success: false,
+        message: 'Wishlist feature not available - database table missing',
+        error: 'Please run the wishlist migration script in Supabase',
+        details: 'Run simple-wishlist-migration.sql in your Supabase SQL editor'
+      })
+    }
+  } catch (checkError) {
+    console.error('Error checking wishlist table:', checkError)
   }
 
   try {
@@ -33,13 +52,40 @@ module.exports = async function handler(req, res) {
       // Get user's wishlist
       console.log('💝 Fetching wishlist for user:', user.id)
       
+      // First get wishlist items
       const { data: wishlistItems, error } = await supabase
         .from('wishlist_items')
-        .select(`
-          id,
-          product_id,
-          created_at,
-          products (
+        .select('id, product_id, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('Error fetching wishlist items:', error)
+
+        // Check if it's a table not found error
+        if (error.code === 'PGRST116') {
+          return res.status(500).json({
+            success: false,
+            message: 'Wishlist feature not available - database table missing',
+            error: 'Please run the wishlist migration script in Supabase',
+            details: 'Run fix-wishlist-table.sql in your Supabase SQL editor'
+          })
+        }
+
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to fetch wishlist',
+          error: error.message,
+          code: error.code
+        })
+      }
+
+      // Then get product details for each wishlist item
+      const wishlistWithProducts = []
+      for (const item of wishlistItems || []) {
+        const { data: product, error: productError } = await supabase
+          .from('products')
+          .select(`
             id,
             name,
             description,
@@ -51,27 +97,44 @@ module.exports = async function handler(req, res) {
               id,
               name
             )
-          )
-        `)
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
+          `)
+          .eq('id', item.product_id)
+          .single()
 
-      if (error) {
-        console.error('Error fetching wishlist:', error)
-        return res.status(500).json({
-          success: false,
-          message: 'Failed to fetch wishlist',
-          error: error.message
+        wishlistWithProducts.push({
+          ...item,
+          products: productError ? null : product
         })
       }
 
-      console.log(`✅ Successfully fetched ${wishlistItems.length} wishlist items`)
-      
+      if (error) {
+        console.error('Error fetching wishlist:', error)
+
+        // Check if it's a table not found error
+        if (error.code === 'PGRST116') {
+          return res.status(500).json({
+            success: false,
+            message: 'Wishlist feature not available - database table missing',
+            error: 'Please run the wishlist migration script in Supabase',
+            details: 'Run simple-wishlist-migration.sql in your Supabase SQL editor'
+          })
+        }
+
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to fetch wishlist',
+          error: error.message,
+          code: error.code
+        })
+      }
+
+      console.log(`✅ Successfully fetched ${wishlistWithProducts.length} wishlist items`)
+
       return res.status(200).json({
         success: true,
         data: {
-          items: wishlistItems,
-          count: wishlistItems.length
+          items: wishlistWithProducts,
+          count: wishlistWithProducts.length
         }
       })
 
@@ -129,10 +192,22 @@ module.exports = async function handler(req, res) {
 
       if (error) {
         console.error('Error adding to wishlist:', error)
+
+        // Check if it's a table not found error
+        if (error.code === 'PGRST116') {
+          return res.status(500).json({
+            success: false,
+            message: 'Wishlist feature not available - database table missing',
+            error: 'Please run the wishlist migration script in Supabase',
+            details: 'Run simple-wishlist-migration.sql in your Supabase SQL editor'
+          })
+        }
+
         return res.status(500).json({
           success: false,
           message: 'Failed to add item to wishlist',
-          error: error.message
+          error: error.message,
+          code: error.code
         })
       }
 
