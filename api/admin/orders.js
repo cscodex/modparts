@@ -78,14 +78,23 @@ module.exports = async (req, res) => {
       for (const order of orders || []) {
         const { data: user, error: userError } = await supabase
           .from('users')
-          .select('email, first_name, last_name')
+          .select('id, email, first_name, last_name, phone')
           .eq('id', order.user_id)
           .single()
 
-        ordersWithUsers.push({
+        // Create a comprehensive order object with customer information
+        const orderWithUser = {
           ...order,
-          user: userError ? null : user
-        })
+          user: userError ? null : user,
+          // Add customer fields for easier frontend access
+          customer_name: user && !userError
+            ? `${user.first_name || ''} ${user.last_name || ''}`.trim()
+            : `${order.first_name || ''} ${order.last_name || ''}`.trim() || 'Unknown Customer',
+          customer_email: user?.email || order.email || 'No email provided',
+          customer_phone: user?.phone || order.phone || null
+        }
+
+        ordersWithUsers.push(orderWithUser)
       }
 
       console.log(`✅ Successfully fetched ${ordersWithUsers.length} orders`)

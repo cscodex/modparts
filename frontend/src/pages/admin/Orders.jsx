@@ -32,7 +32,31 @@ const Orders = () => {
       setLoading(true);
       try {
         const data = await getAllOrders();
-        setOrders(data);
+        console.log('📋 Raw orders data from API:', data);
+
+        // Transform the orders data to ensure customer information is properly extracted
+        const transformedOrders = data.map(order => {
+          const customerName = order.customer_name ||
+            (order.user
+              ? `${order.user.first_name || ''} ${order.user.last_name || ''}`.trim()
+              : `${order.first_name || ''} ${order.last_name || ''}`.trim()) || 'Unknown Customer';
+
+          const customerEmail = order.customer_email || order.user?.email || order.email || 'No email provided';
+
+          console.log(`📋 Order ${order.id} customer info:`, {
+            original: { customer_name: order.customer_name, customer_email: order.customer_email, user: order.user },
+            transformed: { customer_name: customerName, email: customerEmail }
+          });
+
+          return {
+            ...order,
+            customer_name: customerName,
+            email: customerEmail
+          };
+        });
+
+        console.log('📋 Transformed orders:', transformedOrders);
+        setOrders(transformedOrders);
       } catch (err) {
         setError(err.message || 'Failed to load orders');
       } finally {
@@ -414,8 +438,17 @@ const Orders = () => {
                   <td className="p-4 font-semibold">#{order.id}</td>
                   <td className="p-4">
                     <div>
-                      <p>{order.customer_name}</p>
-                      <p className="text-sm text-gray-600">{order.email}</p>
+                      <p className="font-medium">
+                        {order.customer_name || 'Unknown Customer'}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {order.email || 'No email provided'}
+                      </p>
+                      {order.customer_phone && (
+                        <p className="text-xs text-gray-500">
+                          {order.customer_phone}
+                        </p>
+                      )}
                     </div>
                   </td>
                   <td className="p-4">{new Date(order.created_at || Date.now()).toLocaleDateString()}</td>
@@ -467,10 +500,10 @@ const Orders = () => {
         </div>
       )}
 
-      {/* Show pagination info even when no orders are found */}
+      {/* Show pagination info */}
       {!loading && !error && filteredOrders.length > 0 && (
         <div className="mt-4 text-sm text-gray-600">
-          Showing {indexOfFirstOrder + 1} to {Math.min(indexOfLastOrder, filteredOrders.length)} of {filteredOrders.length} orders
+          Showing {indexOfFirstOrder} to {indexOfLastOrder} of {filteredOrders.length} orders
         </div>
       )}
     </div>
