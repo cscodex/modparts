@@ -57,8 +57,16 @@ export const uploadProductImage = async (file) => {
     console.log('Upload response:', response.data);
 
     if (response.data.success) {
-      console.log('Upload successful:', response.data.data.url);
-      return response.data.data.url;
+      // Check for file_url first (new format), then fall back to data.url (old format)
+      const fileUrl = response.data.file_url || response.data.data?.url;
+
+      if (fileUrl) {
+        console.log('Upload successful:', fileUrl);
+        return fileUrl;
+      } else {
+        console.error('No file URL found in response:', response.data);
+        throw new Error('No file URL received from server');
+      }
     } else {
       throw new Error(response.data.message || 'Upload failed');
     }

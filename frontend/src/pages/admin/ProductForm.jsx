@@ -139,9 +139,9 @@ const ProductForm = () => {
       // Log the response for debugging
       console.log('Upload response:', response);
 
-      if (response && response.file_url) {
-        // Update the form data with the new image URL
-        const imageUrl = response.file_url;
+      // The uploadProductImage function now returns the URL directly
+      if (response) {
+        const imageUrl = response; // response is now the URL string directly
         console.log('Setting image URL to:', imageUrl);
 
         setFormData(prev => ({ ...prev, image_url: imageUrl }));
