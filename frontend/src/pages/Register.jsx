@@ -19,6 +19,8 @@ const Register = () => {
   
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [verificationRequired, setVerificationRequired] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
   
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,14 +40,21 @@ const Register = () => {
     try {
       // Remove confirmPassword from data sent to API
       const { confirmPassword, ...userData } = formData;
-      
-      await register(userData);
-      setSuccess(true);
-      
-      // Redirect to login after 2 seconds
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
+
+      const response = await register(userData);
+
+      // Check if email verification is required
+      if (response?.verification_required) {
+        setVerificationRequired(true);
+        setUserEmail(userData.email);
+        setSuccess(false);
+      } else {
+        setSuccess(true);
+        // Redirect to login after 2 seconds
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
+      }
     } catch (err) {
       setError(err.message || 'Registration failed');
     }
@@ -64,6 +73,37 @@ const Register = () => {
       {success && (
         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
           Registration successful! Redirecting to login...
+        </div>
+      )}
+
+      {verificationRequired && (
+        <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-6">
+          <div className="flex items-center mb-2">
+            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+            </svg>
+            <strong>Check Your Email!</strong>
+          </div>
+          <p className="mb-3">
+            We've sent a verification email to <strong>{userEmail}</strong>.
+            Please check your inbox and click the verification link to activate your account.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Link
+              to="/resend-verification"
+              className="text-blue-600 hover:text-blue-800 underline font-medium"
+            >
+              Resend verification email
+            </Link>
+            <span className="hidden sm:inline text-blue-500">•</span>
+            <Link
+              to="/login"
+              className="text-blue-600 hover:text-blue-800 underline font-medium"
+            >
+              Back to login
+            </Link>
+          </div>
         </div>
       )}
       

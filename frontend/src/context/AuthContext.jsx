@@ -71,6 +71,18 @@ export const AuthProvider = ({ children }) => {
 
     try {
       const response = await apiRegister(userData);
+
+      // Check if email verification is required
+      if (response.verification_required) {
+        // Don't auto-login, return response with verification info
+        return response;
+      } else if (response.token) {
+        // Auto-login if no verification required
+        localStorage.setItem('token', response.token);
+        localStorage.setItem('user', JSON.stringify(response.user));
+        setUser(response.user);
+      }
+
       return response;
     } catch (err) {
       setError(err.message || 'Failed to register');

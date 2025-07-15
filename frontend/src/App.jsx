@@ -19,6 +19,8 @@ import MyOrders from './pages/MyOrders'
 import Profile from './pages/Profile'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import VerifyEmail from './pages/VerifyEmail'
+import ResendVerification from './pages/ResendVerification'
 import AdminDashboard from './pages/admin/Dashboard'
 import AdminProducts from './pages/admin/Products'
 import AdminOrders from './pages/admin/Orders'
@@ -88,6 +90,8 @@ function App() {
                 } />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/verify-email" element={<VerifyEmail />} />
+                <Route path="/resend-verification" element={<ResendVerification />} />
                 <Route path="/loading-demo" element={<LoadingDemo />} />
 
                 {/* Admin Routes */}
