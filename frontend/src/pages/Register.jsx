@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { InlineLoader } from '../components/ui/LoadingSpinner';
 
 const Register = () => {
   const { register, loading } = useAuth();
@@ -154,10 +155,14 @@ const Register = () => {
           
           <button
             type="submit"
-            className="w-full bg-blue-800 text-white py-3 rounded font-semibold hover:bg-blue-700 disabled:bg-gray-400"
+            className="w-full flex items-center justify-center bg-blue-800 text-white py-3 rounded font-semibold hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
             disabled={loading || success}
           >
-            {loading ? 'Registering...' : 'Register'}
+            {loading ? (
+              <InlineLoader text="Registering..." variant="gear" size="sm" />
+            ) : (
+              'Register'
+            )}
           </button>
         </form>
         

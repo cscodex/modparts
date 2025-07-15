@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getDashboardData } from '../../api/dashboard';
 import { forceReload } from '../../utils/cache';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
 
 // Added console log to verify component update
 console.log('Dashboard component loaded - version with all links - updated with cache control');
@@ -28,7 +29,11 @@ const Dashboard = () => {
   }, []);
 
   if (loading) {
-    return <div className="text-center py-12">Loading dashboard data...</div>;
+    return (
+      <div className="text-center py-12">
+        <LoadingSpinner size="xl" text="Loading dashboard data..." variant="gear" />
+      </div>
+    );
   }
 
   if (error) {

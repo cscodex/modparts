@@ -7,6 +7,7 @@ import { useToast } from '../context/ToastContext';
 import { processImageUrl, handleImageError } from '../utils/imageHelper';
 import RangeSlider from '../components/RangeSlider';
 import Pagination from '../components/ui/Pagination';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 const ProductList = () => {
   const { categoryId } = useParams();
@@ -580,7 +581,9 @@ const ProductList = () => {
           )}
 
           {loading ? (
-            <div className="text-center py-8">Loading products...</div>
+            <div className="text-center py-8">
+              <LoadingSpinner size="xl" text="Loading products..." variant="gear" />
+            </div>
           ) : products.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-xl text-gray-600">No products available.</p>

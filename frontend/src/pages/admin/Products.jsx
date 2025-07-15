@@ -10,6 +10,7 @@ import CSVImportModal from '../../components/admin/CSVImportModal';
 import Pagination from '../../components/ui/Pagination';
 import ProgressBar from '../../components/ui/ProgressBar';
 import { exportToPDF, exportToXLSX } from '../../utils/exportUtils';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -512,7 +513,9 @@ const Products = () => {
       </div>
 
       {loading ? (
-        <div className="text-center py-12">Loading products...</div>
+        <div className="text-center py-12">
+          <LoadingSpinner size="xl" text="Loading products..." variant="gear" />
+        </div>
       ) : error ? (
         <div className="text-center py-12">
           <p className="text-red-600 mb-4">{error}</p>

@@ -7,6 +7,7 @@ import UserFormModal from '../../components/admin/UserFormModal';
 import { getUsers, createUser, updateUser, deleteUser } from '../../api/users';
 import ProgressBar from '../../components/ui/ProgressBar';
 import { exportToPDF, exportToXLSX } from '../../utils/exportUtils';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -468,7 +469,9 @@ const Users = () => {
       </div>
 
       {loading ? (
-        <div className="text-center py-12">Loading users...</div>
+        <div className="text-center py-12">
+          <LoadingSpinner size="xl" text="Loading users..." variant="gear" />
+        </div>
       ) : error ? (
         <div className="text-center py-12">
           <p className="text-red-600 mb-4">{error}</p>

@@ -5,6 +5,7 @@ import { useToast } from '../../context/ToastContext';
 import Pagination from '../../components/ui/Pagination';
 import ProgressBar from '../../components/ui/ProgressBar';
 import { exportToPDF, exportToXLSX } from '../../utils/exportUtils';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -319,7 +320,9 @@ const Orders = () => {
       </div>
 
       {loading ? (
-        <div className="text-center py-12">Loading orders...</div>
+        <div className="text-center py-12">
+          <LoadingSpinner size="xl" text="Loading orders..." variant="gear" />
+        </div>
       ) : error ? (
         <div className="text-center py-12">
           <p className="text-red-600 mb-4">{error}</p>
