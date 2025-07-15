@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { processImageUrl, handleImageError } from '../utils/imageHelper';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import WishlistButton from '../components/ui/WishlistButton';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -195,6 +196,14 @@ const ProductDetail = () => {
                 </svg>
                 Add to Cart
               </button>
+
+              {/* Wishlist Button */}
+              <WishlistButton
+                product={product}
+                size="lg"
+                variant="button"
+                className="flex-shrink-0"
+              />
               <button
                 onClick={handleBuyNow}
                 className="flex items-center justify-center bg-green-600 text-white px-6 py-3 rounded font-semibold hover:bg-green-700 disabled:bg-gray-400 transition-colors"

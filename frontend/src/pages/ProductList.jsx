@@ -8,6 +8,7 @@ import { processImageUrl, handleImageError } from '../utils/imageHelper';
 import RangeSlider from '../components/RangeSlider';
 import Pagination from '../components/ui/Pagination';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import WishlistButton from '../components/ui/WishlistButton';
 
 const ProductList = () => {
   const { categoryId } = useParams();
@@ -630,6 +631,10 @@ const ProductList = () => {
                         <span>No image available</span>
                       </div>
                     )}
+                    {/* Wishlist Button Overlay */}
+                    <div className="absolute top-2 right-2">
+                      <WishlistButton product={product} size="md" variant="icon" />
+                    </div>
                   </div>
                   <div className="p-4">
                     <h3 className="text-lg font-semibold mb-1">{product.name}</h3>

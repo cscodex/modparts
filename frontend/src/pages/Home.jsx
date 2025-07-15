@@ -4,6 +4,7 @@ import { getProducts } from '../api/products';
 import { getCategories } from '../api/categories';
 import { processImageUrl, handleImageError } from '../utils/imageHelper'
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import WishlistButton from '../components/ui/WishlistButton';
 
 const Home = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -84,7 +85,7 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredProducts.map(product => (
               <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="h-48 bg-gray-200">
+                <div className="h-48 bg-gray-200 relative">
                   {product.image_url ? (
                     <img
                       src={processImageUrl(product.image_url)}
@@ -97,6 +98,10 @@ const Home = () => {
                       No image available
                     </div>
                   )}
+                  {/* Wishlist Button Overlay */}
+                  <div className="absolute top-2 right-2">
+                    <WishlistButton product={product} size="md" variant="icon" />
+                  </div>
                 </div>
                 <div className="p-4">
                   <h3 className="text-lg font-semibold mb-2">{product.name}</h3>

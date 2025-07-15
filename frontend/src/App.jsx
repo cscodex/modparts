@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { CartProvider } from './context/CartContext'
+import { WishlistProvider } from './context/WishlistContext'
 import { ToastProvider } from './context/ToastContext'
 import { checkCacheReload } from './utils/cache'
 import Header from './components/layout/Header'
@@ -24,6 +25,7 @@ import AdminOrders from './pages/admin/Orders'
 import AdminUsers from './pages/admin/Users'
 import AdminProductForm from './pages/admin/ProductForm'
 import LoadingDemo from './pages/LoadingDemo'
+import Wishlist from './pages/Wishlist'
 import NotFound from './pages/NotFound'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import AdminRoute from './components/auth/AdminRoute'
@@ -37,7 +39,8 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <ToastProvider>
+        <WishlistProvider>
+          <ToastProvider>
           <Router>
             <div className="flex flex-col min-h-screen">
               <Header />
@@ -78,6 +81,11 @@ function App() {
                     <Profile />
                   </ProtectedRoute>
                 } />
+                <Route path="/wishlist" element={
+                  <ProtectedRoute>
+                    <Wishlist />
+                  </ProtectedRoute>
+                } />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/loading-demo" element={<LoadingDemo />} />
@@ -104,7 +112,8 @@ function App() {
             <Footer />
           </div>
         </Router>
-        </ToastProvider>
+          </ToastProvider>
+        </WishlistProvider>
       </CartProvider>
     </AuthProvider>
   )

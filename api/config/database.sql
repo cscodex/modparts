@@ -85,6 +85,17 @@ CREATE TABLE IF NOT EXISTS cart_items (
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
 
+-- Create wishlist_items table
+CREATE TABLE IF NOT EXISTS wishlist_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    product_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_user_product (user_id, product_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);
+
 -- Insert admin user (password: admin123)
 INSERT INTO users (email, password, first_name, last_name, role) VALUES
 ('admin@yamahaparts.com', '$2y$10$8tPjdlv.K4A/zRs.YxFqS.XmZK5tGBE.PpxvPCuNv.5.iKq.zxzxe', 'Admin', 'User', 'admin');
