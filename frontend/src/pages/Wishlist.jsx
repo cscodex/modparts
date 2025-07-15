@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { processImageUrl, handleImageError } from '../utils/imageHelper';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import PlaceholderImage from '../components/ui/PlaceholderImage';
 
 const Wishlist = () => {
   const { wishlist, loading, error, removeItem, moveItemToCart } = useWishlist();
@@ -98,11 +99,11 @@ const Wishlist = () => {
             <div key={item.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
               <div className="relative">
                 <Link to={`/products/${item.product_id}`}>
-                  <img
-                    src={processImageUrl(item.products.image_url)}
-                    alt={item.products.name}
+                  <PlaceholderImage
+                    src={processImageUrl(item.products?.image_url)}
+                    alt={item.products?.name}
                     className="w-full h-48 object-cover"
-                    onError={handleImageError}
+                    placeholderText="No Image Available"
                   />
                 </Link>
                 <button

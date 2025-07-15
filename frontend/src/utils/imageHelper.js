@@ -28,9 +28,9 @@ const getBaseUrl = () => {
  * @returns {string} - The processed image URL
  */
 export const processImageUrl = (imageUrl, fallbackUrl = null) => {
-  // If no image URL is provided, return the fallback
-  if (!imageUrl) {
-    return fallbackUrl || '/Modparts/placeholder-image.svg';
+  // If no image URL is provided, return null to trigger placeholder
+  if (!imageUrl || imageUrl.trim() === '') {
+    return null;
   }
 
   // Log the original URL for debugging

@@ -46,7 +46,15 @@ module.exports = async (req, res) => {
     if (req.headers['content-type']?.includes('application/json')) {
       const { filename, mimetype, data } = req.body
 
+      console.log('📤 Processing image upload:', {
+        filename,
+        mimetype,
+        dataLength: data?.length || 0,
+        user: user.email || user.id
+      })
+
       if (!filename || !mimetype || !data) {
+        console.error('❌ Missing required fields for upload')
         return res.status(400).json({
           success: false,
           message: 'Missing required fields: filename, mimetype, data (base64)'
@@ -90,13 +98,23 @@ module.exports = async (req, res) => {
       const fileUrl = `/uploads/${newFilename}`
 
       // Save file to disk
-      fs.writeFileSync(filePath, buffer)
-      console.log('File saved to:', filePath)
+      try {
+        fs.writeFileSync(filePath, buffer)
+        console.log('✅ File saved successfully to:', filePath)
+      } catch (writeError) {
+        console.error('❌ Error writing file:', writeError)
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to save file to disk',
+          error: writeError.message
+        })
+      }
 
-      // Return success response
+      // Return success response with both formats for compatibility
       return res.status(200).json({
         success: true,
         message: 'File uploaded successfully',
+        file_url: fileUrl,  // Frontend expects this field
         data: {
           filename: newFilename,
           originalName: filename,

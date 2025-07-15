@@ -9,6 +9,7 @@ import RangeSlider from '../components/RangeSlider';
 import Pagination from '../components/ui/Pagination';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import WishlistButton from '../components/ui/WishlistButton';
+import PlaceholderImage from '../components/ui/PlaceholderImage';
 
 const ProductList = () => {
   const { categoryId } = useParams();
@@ -617,20 +618,14 @@ const ProductList = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredAndSortedProducts.map(product => (
                 <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-                  <div className="h-48 bg-gray-200 flex items-center justify-center relative">
-                    {product.image_url ? (
-                      <img
-                        src={processImageUrl(product.image_url)}
-                        alt={product.name}
-                        className="w-full h-full object-contain"
-                        onError={(e) => handleImageError(e)}
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-500">
-                        <span>No image available</span>
-                      </div>
-                    )}
+                  <div className="h-48 relative">
+                    <PlaceholderImage
+                      src={processImageUrl(product.image_url)}
+                      alt={product.name}
+                      className="w-full h-full object-contain"
+                      placeholderText="No Image Available"
+                      loading="lazy"
+                    />
                     {/* Wishlist Button Overlay */}
                     <div className="absolute top-2 right-2">
                       <WishlistButton product={product} size="md" variant="icon" />

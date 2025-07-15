@@ -10,6 +10,7 @@ import CSVImportModal from '../../components/admin/CSVImportModal';
 import Pagination from '../../components/ui/Pagination';
 import ProgressBar from '../../components/ui/ProgressBar';
 import { exportToPDF, exportToXLSX } from '../../utils/exportUtils';
+import PlaceholderImage from '../../components/ui/PlaceholderImage';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 
 const Products = () => {
@@ -621,19 +622,14 @@ const Products = () => {
                   </td>
                   <td className="p-4">
                     <div className="flex items-center">
-                      <div className="w-12 h-12 bg-gray-200 mr-3">
-                        {product.image_url ? (
-                          <img
-                            src={processImageUrl(product.image_url)}
-                            alt={product.name}
-                            className="w-full h-full object-cover"
-                            onError={(e) => handleImageError(e)}
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">
-                            No image
-                          </div>
-                        )}
+                      <div className="w-12 h-12 mr-3">
+                        <PlaceholderImage
+                          src={processImageUrl(product.image_url)}
+                          alt={product.name}
+                          className="w-full h-full object-cover rounded"
+                          placeholderText="No Image"
+                          showIcon={false}
+                        />
                       </div>
                       <div>
                         <p className="font-semibold">{product.name}</p>

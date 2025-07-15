@@ -6,6 +6,7 @@ import { useToast } from '../context/ToastContext';
 import { processImageUrl, handleImageError } from '../utils/imageHelper';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import WishlistButton from '../components/ui/WishlistButton';
+import PlaceholderImage from '../components/ui/PlaceholderImage';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -116,19 +117,13 @@ const ProductDetail = () => {
 
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
         <div className="md:flex">
-          <div className="md:w-1/2 h-64 md:h-auto bg-gray-200 flex items-center justify-center">
-            {product.image_url ? (
-              <img
-                src={processImageUrl(product.image_url)}
-                alt={product.name}
-                className="w-full h-full object-contain"
-                onError={(e) => handleImageError(e)}
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-500">
-                No image available
-              </div>
-            )}
+          <div className="md:w-1/2 h-64 md:h-auto">
+            <PlaceholderImage
+              src={processImageUrl(product.image_url)}
+              alt={product.name}
+              className="w-full h-full object-contain"
+              placeholderText="No Image Available"
+            />
           </div>
 
           <div className="md:w-1/2 p-6">
