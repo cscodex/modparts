@@ -19,6 +19,7 @@ module.exports = async function handler(req, res) {
   if (req.method === 'GET') {
     // Get pending users for approval
     try {
+      // First check if status column exists
       const { data: pendingUsers, error } = await supabaseAdmin
         .from('users')
         .select('id, email, first_name, last_name, phone, address, status, created_at')
@@ -26,20 +27,41 @@ module.exports = async function handler(req, res) {
         .order('created_at', { ascending: false })
 
       if (error) {
-        console.error('Error fetching pending users:', error)
-        return res.status(500).json({ message: 'Failed to fetch pending users' })
+        console.error('❌ Error fetching pending users:', error)
+        console.error('❌ Error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        })
+
+        // Check if it's a column not found error
+        if (error.message?.includes('status') || error.code === 'PGRST116') {
+          return res.status(500).json({
+            message: 'Database not configured for user approval system. Please run the SQL migration first.',
+            migration_required: true
+          })
+        }
+
+        return res.status(500).json({
+          message: 'Failed to fetch pending users',
+          error: error.message
+        })
       }
 
-      console.log(`✅ Found ${pendingUsers.length} pending users`)
+      console.log(`✅ Found ${pendingUsers?.length || 0} pending users`)
       res.status(200).json({
         success: true,
-        data: pendingUsers,
-        count: pendingUsers.length
+        data: pendingUsers || [],
+        count: pendingUsers?.length || 0
       })
 
     } catch (error) {
-      console.error('Error in pending users API:', error)
-      res.status(500).json({ message: 'Internal server error' })
+      console.error('❌ Error in pending users API:', error)
+      res.status(500).json({
+        message: 'Internal server error',
+        error: error.message
+      })
     }
 
   } else if (req.method === 'POST') {
