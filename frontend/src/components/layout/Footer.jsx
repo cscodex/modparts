@@ -10,7 +10,7 @@ const Footer = () => {
           <div>
             <h3 className="text-xl font-bold mb-4">Yamaha RD Parts</h3>
             <p className="text-gray-300">
-              Your one-stop shop for quality Yamaha RD motorcycle parts.
+              Your one-stop shop for quality  automobile parts.
               We specialize in hard-to-find parts for classic Yamaha RD models.
             </p>
           </div>

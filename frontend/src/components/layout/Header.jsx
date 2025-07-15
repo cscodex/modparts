@@ -31,7 +31,7 @@ const Header = () => {
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link to="/" className="text-xl md:text-2xl font-bold hover:text-blue-200 transition-colors">
-              Yamaha RD Parts
+              Sardaarji Auto Parts
             </Link>
           </div>
 
