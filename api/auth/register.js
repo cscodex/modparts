@@ -43,18 +43,7 @@ module.exports = async function handler(req, res) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    // Check if email verification is enabled
-    const emailVerificationEnabled = emailService && process.env.SMTP_USER
-
-    let verificationToken = null
-    let verificationExpires = null
-
-    if (emailVerificationEnabled) {
-      verificationToken = emailService.generateVerificationToken()
-      verificationExpires = emailService.getExpirationTime()
-    }
-
-    // Prepare user data - only include email verification fields if enabled
+    // Prepare user data with admin approval system
     const userData = {
       email,
       password: hashedPassword,
@@ -62,15 +51,10 @@ module.exports = async function handler(req, res) {
       last_name,
       phone: phone || null,
       address: address || null,
-      role: 'customer'
-    }
-
-    // Add email verification fields only if enabled and database supports them
-    if (emailVerificationEnabled) {
-      userData.email_verified = false
-      userData.email_verification_token = verificationToken
-      userData.email_verification_expires = verificationExpires.toISOString()
-      userData.email_verification_sent_at = new Date().toISOString()
+      role: 'customer',
+      status: 'pending_approval', // New users need admin approval
+      email_verified: true, // Skip email verification for now
+      created_at: new Date().toISOString()
     }
 
     // Create user in Supabase using admin client to bypass RLS
@@ -96,56 +80,20 @@ module.exports = async function handler(req, res) {
 
     console.log('✅ User created successfully:', { id: newUser.id, email: newUser.email })
 
-    // Generate JWT token
-    const token = jwt.sign(
-      {
-        id: newUser.id,
-        email: newUser.email,
-        role: newUser.role
-      },
-      process.env.JWT_SECRET || 'fallback-secret',
-      { expiresIn: '24h' }
-    )
+    // Don't generate JWT token - user needs admin approval first
+    console.log('✅ Registration completed - pending admin approval')
 
-    // Send verification email if enabled
-    if (emailVerificationEnabled && verificationToken) {
-      try {
-        await emailService.sendVerificationEmail(email, first_name, verificationToken)
-        console.log('✅ Verification email sent successfully')
-
-        // Return response requiring email verification
-        return res.status(201).json({
-          message: 'Registration successful! Please check your email to verify your account.',
-          user: {
-            id: newUser.id,
-            email: newUser.email,
-            first_name: newUser.first_name,
-            last_name: newUser.last_name,
-            role: newUser.role,
-            email_verified: false
-          },
-          verification_required: true
-        })
-      } catch (emailError) {
-        console.error('❌ Failed to send verification email:', emailError)
-        // Continue with normal registration if email fails
-      }
-    }
-
-    // Normal registration without email verification
-    console.log('✅ Registration completed successfully')
     res.status(201).json({
-      message: 'Registration successful',
+      message: 'Registration successful! Your account is pending admin approval. You will be notified once approved.',
       user: {
         id: newUser.id,
         email: newUser.email,
         first_name: newUser.first_name,
         last_name: newUser.last_name,
         role: newUser.role,
-        email_verified: emailVerificationEnabled ? false : true
+        status: 'pending_approval'
       },
-      token: emailVerificationEnabled ? undefined : token,
-      verification_required: emailVerificationEnabled
+      approval_required: true
     })
 
   } catch (error) {

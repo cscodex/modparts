@@ -48,16 +48,31 @@ const Login = () => {
       <h1 className="text-3xl font-bold mb-6 text-center">Login</h1>
 
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+        <div className={`border px-4 py-3 rounded mb-6 ${
+          error.includes('pending admin approval')
+            ? 'bg-yellow-100 border-yellow-400 text-yellow-800'
+            : 'bg-red-100 border-red-400 text-red-700'
+        }`}>
           {error}
-          {error.includes('verify your email') && (
+          {error.includes('pending admin approval') && (
+            <div className="mt-3 pt-3 border-t border-yellow-300">
+              <p className="text-sm">
+                Your account is waiting for admin approval. This usually takes 1-2 business days.
+              </p>
+            </div>
+          )}
+          {error.includes('rejected') && (
             <div className="mt-3 pt-3 border-t border-red-300">
-              <Link
-                to="/resend-verification"
-                className="text-red-600 hover:text-red-800 underline font-medium"
-              >
-                Resend verification email
-              </Link>
+              <p className="text-sm">
+                Please contact support for more information about your account status.
+              </p>
+            </div>
+          )}
+          {error.includes('suspended') && (
+            <div className="mt-3 pt-3 border-t border-red-300">
+              <p className="text-sm">
+                Please contact support to resolve any issues with your account.
+              </p>
             </div>
           )}
         </div>

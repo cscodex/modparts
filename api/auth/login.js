@@ -48,13 +48,29 @@ module.exports = async function handler(req, res) {
       return res.status(401).json({ message: 'Invalid credentials' })
     }
 
-    // Check if email is verified (only if email verification is enabled)
-    if (user.email_verified !== undefined && user.email_verified === false) {
-      console.log('Login blocked: Email not verified for user:', user.email)
+    // Check if user is approved by admin
+    if (user.status === 'pending_approval') {
+      console.log('Login blocked: User pending admin approval:', user.email)
       return res.status(403).json({
-        message: 'Please verify your email address before logging in.',
-        email_verification_required: true,
-        email: user.email
+        message: 'Your account is pending admin approval. Please wait for approval before logging in.',
+        approval_required: true,
+        status: 'pending_approval'
+      })
+    }
+
+    if (user.status === 'rejected') {
+      console.log('Login blocked: User account rejected:', user.email)
+      return res.status(403).json({
+        message: 'Your account has been rejected. Please contact support for more information.',
+        status: 'rejected'
+      })
+    }
+
+    if (user.status === 'suspended') {
+      console.log('Login blocked: User account suspended:', user.email)
+      return res.status(403).json({
+        message: 'Your account has been suspended. Please contact support.',
+        status: 'suspended'
       })
     }
 
