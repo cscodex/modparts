@@ -38,9 +38,9 @@ function App() {
 
   return (
     <AuthProvider>
-      <CartProvider>
-        <WishlistProvider>
-          <ToastProvider>
+      <ToastProvider>
+        <CartProvider>
+          <WishlistProvider>
           <Router>
             <div className="flex flex-col min-h-screen">
               <Header />
@@ -112,9 +112,9 @@ function App() {
             <Footer />
           </div>
         </Router>
-          </ToastProvider>
-        </WishlistProvider>
-      </CartProvider>
+          </WishlistProvider>
+        </CartProvider>
+      </ToastProvider>
     </AuthProvider>
   )
 }
