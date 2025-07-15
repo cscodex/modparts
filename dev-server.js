@@ -5,6 +5,30 @@
 require('dotenv').config({ path: '.env.local' });
 require('dotenv').config(); // Fallback to .env
 
+// Ensure bcryptjs is available before starting
+function ensureBcryptjs() {
+  try {
+    require.resolve('bcryptjs');
+    console.log('✅ bcryptjs is available');
+    return true;
+  } catch (e) {
+    console.log('❌ bcryptjs not found, attempting to install...');
+    try {
+      const { execSync } = require('child_process');
+      execSync('npm install bcryptjs --no-save', { stdio: 'inherit' });
+      console.log('✅ bcryptjs installed successfully!');
+      return true;
+    } catch (installError) {
+      console.error('❌ Failed to install bcryptjs:', installError.message);
+      console.log('⚠️ Authentication may not work properly');
+      return false;
+    }
+  }
+}
+
+// Run bcryptjs check
+ensureBcryptjs();
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
