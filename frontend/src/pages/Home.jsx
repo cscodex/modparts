@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getProducts } from '../api/products';
 import { getCategories } from '../api/categories';
-import { processImageUrl, handleImageError } from '../utils/imageHelper';
+import { processImageUrl, handleImageError } from '../utils/imageHelper'
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 const Home = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -53,7 +54,9 @@ const Home = () => {
       <section className="mb-12">
         <h2 className="text-3xl font-bold mb-6 text-center">Shop by Category</h2>
         {loading ? (
-          <div className="text-center">Loading categories...</div>
+          <div className="text-center py-8">
+            <LoadingSpinner size="lg" text="Loading categories..." variant="gear" />
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {categories.map(category => (
@@ -74,7 +77,9 @@ const Home = () => {
       <section className="mb-12">
         <h2 className="text-3xl font-bold mb-6 text-center">Featured Products</h2>
         {loading ? (
-          <div className="text-center">Loading products...</div>
+          <div className="text-center py-8">
+            <LoadingSpinner size="lg" text="Loading featured products..." variant="gear" />
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredProducts.map(product => (

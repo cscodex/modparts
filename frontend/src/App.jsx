@@ -23,6 +23,7 @@ import AdminProducts from './pages/admin/Products'
 import AdminOrders from './pages/admin/Orders'
 import AdminUsers from './pages/admin/Users'
 import AdminProductForm from './pages/admin/ProductForm'
+import LoadingDemo from './pages/LoadingDemo'
 import NotFound from './pages/NotFound'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import AdminRoute from './components/auth/AdminRoute'
@@ -79,6 +80,7 @@ function App() {
                 } />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/loading-demo" element={<LoadingDemo />} />
 
                 {/* Admin Routes */}
                 <Route path="/admin" element={

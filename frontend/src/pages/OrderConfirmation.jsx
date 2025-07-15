@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getOrderById } from '../api/orders';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 const OrderConfirmation = () => {
   const { id } = useParams();
@@ -25,7 +26,11 @@ const OrderConfirmation = () => {
   }, [id]);
 
   if (loading) {
-    return <div className="text-center py-12">Loading order details...</div>;
+    return (
+      <div className="text-center py-12">
+        <LoadingSpinner size="xl" text="Loading order details..." variant="gear" />
+      </div>
+    );
   }
 
   if (error) {

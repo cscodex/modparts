@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams, useLocation } from 'react-router-dom';
 import { fetchOrderById } from '../api/myOrders';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 // Utility function to format date as DD-MMM-YYYY
 const formatDate = (dateString) => {
@@ -93,7 +94,11 @@ const OrderDetail = () => {
   };
 
   if (loading) {
-    return <div className="text-center py-12">Loading order details...</div>;
+    return (
+      <div className="text-center py-12">
+        <LoadingSpinner size="xl" text="Loading order details..." variant="gear" />
+      </div>
+    );
   }
 
   if (error) {

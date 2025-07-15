@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchMyOrders, createTestOrder } from '../api/myOrders';
+import LoadingSpinner, { InlineLoader } from '../components/ui/LoadingSpinner';
 
 const MyOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -91,7 +92,7 @@ const MyOrders = () => {
 
       {loading ? (
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          <LoadingSpinner size="xl" text="Loading your orders..." variant="gear" />
         </div>
       ) : error ? (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -118,9 +119,13 @@ const MyOrders = () => {
               disabled={creating}
               className={`${
                 creating ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-700'
-              } text-white px-6 py-3 rounded font-semibold`}
+              } text-white px-6 py-3 rounded font-semibold flex items-center space-x-2`}
             >
-              {creating ? 'Creating...' : 'Create Test Order'}
+              {creating ? (
+                <InlineLoader text="Creating..." variant="gear" size="sm" />
+              ) : (
+                'Create Test Order'
+              )}
             </button>
           </div>
         </div>
