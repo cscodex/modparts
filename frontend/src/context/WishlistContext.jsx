@@ -12,7 +12,18 @@ export const WishlistProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { isAuthenticated } = useAuth();
-  const { success, error: showError } = useToast();
+
+  // Safely get toast functions with fallbacks
+  let success, showError;
+  try {
+    const toast = useToast();
+    success = toast.success;
+    showError = toast.error;
+  } catch (err) {
+    console.warn('Toast context not available, using console fallbacks');
+    success = (msg) => console.log('Success:', msg);
+    showError = (msg) => console.error('Error:', msg);
+  }
 
   // Load wishlist when user is authenticated
   useEffect(() => {
@@ -147,12 +158,22 @@ export const WishlistProvider = ({ children }) => {
 
   // Check if product is in wishlist
   const isInWishlist = (productId) => {
-    return wishlist.some(item => item.product_id === productId);
+    try {
+      return Array.isArray(wishlist) ? wishlist.some(item => item.product_id === productId) : false;
+    } catch (error) {
+      console.error('Error checking wishlist:', error);
+      return false;
+    }
   };
 
   // Get wishlist count
   const getWishlistCount = () => {
-    return wishlist.length;
+    try {
+      return Array.isArray(wishlist) ? wishlist.length : 0;
+    } catch (error) {
+      console.error('Error getting wishlist count:', error);
+      return 0;
+    }
   };
 
   // Clear wishlist (for logout)
