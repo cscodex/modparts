@@ -1,6 +1,6 @@
 const { createClient } = require('@supabase/supabase-js')
 const jwt = require('jsonwebtoken')
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 
 // Initialize Supabase client
 const supabase = createClient(

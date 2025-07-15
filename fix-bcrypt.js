@@ -39,7 +39,8 @@ if (!bcryptjsInstalled) {
 // Update auth files to use bcryptjs
 const authFiles = [
   path.join(__dirname, 'api', 'auth', 'login.js'),
-  path.join(__dirname, 'api', 'auth', 'register.js')
+  path.join(__dirname, 'api', 'auth', 'register.js'),
+  path.join(__dirname, 'api', 'users', 'profile.js')
 ];
 
 authFiles.forEach(file => {

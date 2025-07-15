@@ -43,7 +43,8 @@ if (!isModuleAvailable('bcryptjs')) {
 // Update auth files to use bcryptjs if they're still using bcrypt
 const authFiles = [
   path.join(__dirname, 'api', 'auth', 'login.js'),
-  path.join(__dirname, 'api', 'auth', 'register.js')
+  path.join(__dirname, 'api', 'auth', 'register.js'),
+  path.join(__dirname, 'api', 'users', 'profile.js')
 ];
 
 authFiles.forEach(file => {

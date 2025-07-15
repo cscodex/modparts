@@ -1,7 +1,7 @@
 // Quick script to check if users exist and create a test user if needed
 require('dotenv').config({ path: '.env.local' });
 const { supabase } = require('./lib/supabase');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 async function checkAndCreateUser() {
   console.log('=== CHECKING USER DATABASE ===');

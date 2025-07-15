@@ -1,6 +1,6 @@
 const { supabase } = require('../../lib/supabase')
 const jwt = require('jsonwebtoken')
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 
 // Helper function to verify JWT token
 function verifyToken(req) {
