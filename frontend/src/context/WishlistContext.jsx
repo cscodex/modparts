@@ -35,7 +35,10 @@ export const WishlistProvider = ({ children }) => {
         try {
           console.log('Fetching wishlist from database for authenticated user');
           const wishlistData = await getWishlist();
-          setWishlist(wishlistData.items || []);
+          const safeWishlistItems = (wishlistData.items || []).filter(item =>
+            item && item.id && item.products && item.products.name
+          );
+          setWishlist(safeWishlistItems);
         } catch (err) {
           console.error('Failed to fetch wishlist:', err);
           setError('Failed to load wishlist');
@@ -74,9 +77,12 @@ export const WishlistProvider = ({ children }) => {
       // Add to wishlist via API
       await addToWishlist(product.id);
 
-      // Refresh wishlist
+      // Refresh wishlist with null safety
       const wishlistData = await getWishlist();
-      setWishlist(wishlistData.items || []);
+      const safeWishlistItems = (wishlistData.items || []).filter(item =>
+        item && item.id && item.products && item.products.name
+      );
+      setWishlist(safeWishlistItems);
 
       success(`${product.name} added to wishlist`);
       return true;
@@ -104,9 +110,9 @@ export const WishlistProvider = ({ children }) => {
       // Remove from wishlist via API
       await removeFromWishlist(productId);
 
-      // Update local state
-      setWishlist(prevWishlist => 
-        prevWishlist.filter(item => item.product_id !== productId)
+      // Update local state with null safety
+      setWishlist(prevWishlist =>
+        prevWishlist.filter(item => item && item.product_id !== productId)
       );
 
       success(`${productName} removed from wishlist`);

@@ -7,9 +7,19 @@ export const getWishlist = async () => {
   try {
     const response = await api.get('/wishlist');
     console.log('Wishlist fetched successfully:', response.data);
-    
+
     if (response.data && response.data.success) {
-      return response.data.data;
+      // Filter out null/invalid items from the API response
+      const rawItems = response.data.data?.items || [];
+      const safeItems = rawItems.filter(item =>
+        item && item.id && item.products && item.products.name
+      );
+
+      return {
+        ...response.data.data,
+        items: safeItems,
+        count: safeItems.length
+      };
     } else {
       console.warn('Unexpected wishlist response format:', response.data);
       return { items: [], count: 0 };
@@ -94,7 +104,9 @@ export const isInWishlist = async (productId) => {
 
   try {
     const wishlistData = await getWishlist();
-    const isInList = wishlistData.items.some(item => item.product_id === productId);
+    const isInList = (wishlistData.items || []).some(item =>
+      item && item.product_id === productId
+    );
     console.log('Product in wishlist:', isInList);
     return isInList;
   } catch (error) {
