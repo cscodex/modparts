@@ -116,8 +116,8 @@ export const getProducts = async (params = {}) => {
       dataLength: response.data?.data?.length
     });
 
-    // Process products to ensure category_id is a string for consistent comparison
-    const products = response.data.data || [];
+    // Process products to ensure category_id is a string for consistent comparison and filter out null entries
+    const products = (response.data.data || []).filter(product => product && product.id && product.name);
     const processedProducts = products.map(product => ({
       ...product,
       category_id: String(product.category_id) // Ensure category_id is a string

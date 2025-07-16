@@ -5,12 +5,14 @@ export const getCategories = async () => {
     const response = await api.get('/categories');
     const categories = response.data.data || [];
 
-    // Process categories to ensure consistent ID format
-    const processedCategories = categories.map(category => ({
-      ...category,
-      id: String(category.id), // Ensure ID is a string
-      name: category.name.trim() // Trim whitespace from names
-    }));
+    // Process categories to ensure consistent ID format and filter out null/invalid entries
+    const processedCategories = categories
+      .filter(category => category && category.id && category.name) // Filter out null/invalid entries
+      .map(category => ({
+        ...category,
+        id: String(category.id), // Ensure ID is a string
+        name: category.name.trim() // Trim whitespace from names
+      }));
 
     // Remove duplicates by using a Map with category name as key
     // This ensures we don't have categories with the same name but different IDs

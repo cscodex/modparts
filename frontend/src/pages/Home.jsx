@@ -61,7 +61,7 @@ const Home = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {categories.map(category => (
+            {categories.filter(category => category && category.id && category.name).map(category => (
               <Link
                 key={category.id}
                 to={`/products/category/${category.id}`}
@@ -84,7 +84,7 @@ const Home = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredProducts.map(product => (
+            {featuredProducts.filter(product => product && product.id && product.name).map(product => (
               <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="h-48 relative">
                   <PlaceholderImage

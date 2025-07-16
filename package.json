@@ -9,7 +9,7 @@
     "vercel-build": "cd frontend && npm install && npm run build",
     "postinstall": "node install-bcryptjs.js || echo 'bcryptjs installation skipped'",
     "prestart": "node fix-bcrypt.js",
-    "start": "node dev-server.js"
+    "start": "node index.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",

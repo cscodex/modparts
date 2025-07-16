@@ -486,7 +486,7 @@ const Products = () => {
               }}
             >
               <option value="all">All Categories</option>
-              {categories.map(category => {
+              {categories.filter(category => category && category.id && category.name).map(category => {
                 // Convert category.id to string to ensure consistent type
                 const categoryId = String(category.id);
                 console.log(`Rendering category option: ${category.name}, ID: ${categoryId}, Type: ${typeof categoryId}`);
