@@ -308,71 +308,71 @@ const Orders = () => {
 
   return (
     <div className="container mx-auto px-4 pt-6">
-        {/* Export Progress Bar */}
-        <ProgressBar
-          progress={exportProgress}
-          isVisible={isExporting}
-          onComplete={() => setIsExporting(false)}
-        />
+      {/* Export Progress Bar */}
+      <ProgressBar
+        progress={exportProgress}
+        isVisible={isExporting}
+        onComplete={() => setIsExporting(false)}
+      />
 
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-          <h1 className="text-3xl font-bold text-midnight-50">Manage Orders</h1>
-        </div>
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+        <h1 className="text-3xl font-bold text-midnight-50">Manage Orders</h1>
+      </div>
 
-        <div className="bg-midnight-900 border border-midnight-700 rounded-lg shadow p-6 mb-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-            <div>
-              <label className="block text-midnight-200 mb-2">Filter by Status</label>
-              <select
-                className="p-2 border border-midnight-600 bg-midnight-800 text-midnight-100 rounded"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
-                <option value="all">All Orders</option>
-                <option value="pending">Pending</option>
-                <option value="processing">Processing</option>
-                <option value="shipped">Shipped</option>
-                <option value="delivered">Delivered</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-            </div>
+      <div className="bg-midnight-900 border border-midnight-700 rounded-lg shadow p-6 mb-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+          <div>
+            <label className="block text-midnight-200 mb-2">Filter by Status</label>
+            <select
+              className="p-2 border border-midnight-600 bg-midnight-800 text-midnight-100 rounded"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="all">All Orders</option>
+              <option value="pending">Pending</option>
+              <option value="processing">Processing</option>
+              <option value="shipped">Shipped</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
 
-            <div className="text-midnight-300">
-              Showing {filteredOrders.length} of {orders.length} orders
-            </div>
+          <div className="text-midnight-300">
+            Showing {filteredOrders.length} of {orders.length} orders
           </div>
         </div>
+      </div>
 
-        {loading ? (
-          <div className="text-center py-12">
-            <LoadingSpinner size="xl" text="Loading orders..." variant="gear" />
-          </div>
-        ) : error ? (
-          <div className="text-center py-12">
-            <p className="text-red-400 mb-4">{error}</p>
-          </div>
-        ) : filteredOrders.length === 0 ? (
-          <div className="text-center py-12 bg-midnight-900 border border-midnight-700 rounded-lg shadow">
-            <p className="text-xl text-midnight-300">No orders found</p>
-          </div>
-        ) : (
-          <div className="bg-midnight-900 border border-midnight-700 rounded-lg shadow overflow-hidden">
-            <div className="flex justify-between items-center p-4 bg-midnight-800 border-b border-midnight-700">
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="select-all-orders"
-                  checked={selectAll}
-                  onChange={handleSelectAll}
-                  className="h-4 w-4 text-midnight-300 rounded border-midnight-600 bg-midnight-700 focus:ring-midnight-500"
-                />
-                <label htmlFor="select-all-orders" className="text-sm font-medium text-midnight-200">
-                  Select All
-                </label>
-                <span className="text-sm text-midnight-400">
-                  ({selectedOrders.length} selected)
-                </span>
-              </div>
+      {loading ? (
+        <div className="text-center py-12">
+          <LoadingSpinner size="xl" text="Loading orders..." variant="gear" />
+        </div>
+      ) : error ? (
+        <div className="text-center py-12">
+          <p className="text-red-400 mb-4">{error}</p>
+        </div>
+      ) : filteredOrders.length === 0 ? (
+        <div className="text-center py-12 bg-midnight-900 border border-midnight-700 rounded-lg shadow">
+          <p className="text-xl text-midnight-300">No orders found</p>
+        </div>
+      ) : (
+        <div className="bg-midnight-900 border border-midnight-700 rounded-lg shadow overflow-hidden">
+          <div className="flex justify-between items-center p-4 bg-midnight-800 border-b border-midnight-700">
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="select-all-orders"
+                checked={selectAll}
+                onChange={handleSelectAll}
+                className="h-4 w-4 text-midnight-300 rounded border-midnight-600 bg-midnight-700 focus:ring-midnight-500"
+              />
+              <label htmlFor="select-all-orders" className="text-sm font-medium text-midnight-200">
+                Select All
+              </label>
+              <span className="text-sm text-midnight-400">
+                ({selectedOrders.length} selected)
+              </span>
+            </div>
 
               <div className="flex space-x-2">
                 {selectedOrders.length > 0 && (
@@ -500,13 +500,12 @@ const Orders = () => {
         </div>
       )}
 
-        {/* Show pagination info */}
-        {!loading && !error && filteredOrders.length > 0 && (
-          <div className="mt-4 text-sm text-midnight-400">
-            Showing {indexOfFirstOrder} to {indexOfLastOrder} of {filteredOrders.length} orders
-          </div>
-        )}
-      </div>
+      {/* Show pagination info */}
+      {!loading && !error && filteredOrders.length > 0 && (
+        <div className="mt-4 text-sm text-midnight-400">
+          Showing {indexOfFirstOrder} to {indexOfLastOrder} of {filteredOrders.length} orders
+        </div>
+      )}
     </div>
   );
 };

@@ -700,12 +700,11 @@ const Products = () => {
           </div>
         )}
 
-        {!loading && !error && filteredProducts.length > 0 && (
-          <div className="mt-4 text-sm text-midnight-400">
-            Showing {indexOfFirstProduct + 1} to {Math.min(indexOfLastProduct, filteredProducts.length)} of {filteredProducts.length} products
-          </div>
-        )}
-      </div>
+      {!loading && !error && filteredProducts.length > 0 && (
+        <div className="mt-4 text-sm text-midnight-400">
+          Showing {indexOfFirstProduct + 1} to {Math.min(indexOfLastProduct, filteredProducts.length)} of {filteredProducts.length} products
+        </div>
+      )}
     </div>
   );
 };
