@@ -5,10 +5,10 @@ import Papa from 'papaparse';
 // Sample CSV data for the template
 const sampleCsvData = [
   ['name', 'price', 'category_id', 'quantity', 'description', 'condition_status'],
-  ['RD350 Piston Kit', '149.99', 'Engine Parts', '10', 'High-quality piston kit for Yamaha RD350. Includes piston rings and pins.', 'New'],
-  ['Front Brake Caliper', '89.95', 'Brakes', '5', 'Refurbished front brake caliper for Yamaha RD models.', 'Refurbished'],
-  ['Electrical Wiring Harness', '75.50', 'Electrical', '8', 'Complete wiring harness for Yamaha RD350. Direct replacement for original part.', 'New'],
-  ['Carburetor Rebuild Kit', '45.00', 'Engine Parts', '15', 'Complete rebuild kit for Yamaha RD carburetors. Includes all necessary gaskets and jets.', 'New'],
+  ['Universal Piston Kit', '149.99', 'Engine Parts', '10', 'High-quality universal piston kit. Includes piston rings and pins.', 'New'],
+  ['Front Brake Caliper', '89.95', 'Brakes', '5', 'Refurbished front brake caliper for various vehicle models.', 'Refurbished'],
+  ['Electrical Wiring Harness', '75.50', 'Electrical', '8', 'Complete wiring harness for automotive applications. Direct replacement part.', 'New'],
+  ['Carburetor Rebuild Kit', '45.00', 'Engine Parts', '15', 'Complete rebuild kit for automotive carburetors. Includes all necessary gaskets and jets.', 'New'],
   ['Headlight Assembly', '65.75', 'Bodywork', '3', 'Chrome headlight assembly for Yamaha RD models. Includes mounting hardware.', 'Used']
 ];
 

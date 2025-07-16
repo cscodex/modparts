@@ -41,8 +41,8 @@ const Home = () => {
       {/* Hero Section */}
       <section className="bg-blue-800 text-white py-16 rounded-lg mb-12">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Yamaha RD Parts Shop</h1>
-          <p className="text-xl mb-8">Quality parts for your classic Yamaha RD motorcycle</p>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Sardaarji Auto Parts</h1>
+          <p className="text-xl mb-8">Quality auto parts for all vehicle makes and models</p>
           <Link
             to="/products"
             className="bg-white text-blue-800 px-6 py-3 rounded-lg font-bold hover:bg-blue-100 transition duration-300"
@@ -135,11 +135,11 @@ const Home = () => {
       {/* About Section */}
       <section className="bg-gray-100 py-12 rounded-lg">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-6 text-center">About Yamaha RD Parts</h2>
+          <h2 className="text-3xl font-bold mb-6 text-center">About Sardaarji Auto Parts</h2>
           <div className="max-w-3xl mx-auto text-center">
             <p className="text-lg mb-4">
-              We specialize in providing high-quality parts for classic Yamaha RD motorcycles.
-              Whether you're restoring a vintage RD or maintaining your daily rider, we have the parts you need.
+              We specialize in providing high-quality auto parts for all vehicle makes and models.
+              Whether you're maintaining your daily driver or working on a restoration project, we have the parts you need.
             </p>
             <p className="text-lg mb-4">
               Our inventory includes both new and carefully inspected used parts, ensuring you can find exactly what you need

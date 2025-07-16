@@ -8,10 +8,10 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
-            <h3 className="text-xl font-bold mb-4">Yamaha RD Parts</h3>
+            <h3 className="text-xl font-bold mb-4">Sardaarji Auto Parts</h3>
             <p className="text-gray-300">
-              Your one-stop shop for quality  automobile parts.
-              We specialize in hard-to-find parts for classic Yamaha RD models.
+              Your one-stop shop for quality automobile parts.
+              We specialize in premium auto parts for all vehicle makes and models.
             </p>
           </div>
 
@@ -21,7 +21,7 @@ const Footer = () => {
               <p>123 Motorcycle Lane</p>
               <p>Bike City, BC 12345</p>
               <p className="mt-2">Phone: (555) 123-4567</p>
-              <p>Email: info@yamahaparts.com</p>
+              <p>Email: info@sardaarjiautoparts.com</p>
             </address>
           </div>
         </div>

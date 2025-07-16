@@ -1,6 +1,6 @@
-# Yamaha RD Parts Shop
+# Sardaarji Auto Parts
 
-A responsive e-commerce website for Yamaha RD motorcycle parts, built with React, PHP, and MySQL.
+A responsive e-commerce website for automotive parts, built with React, Node.js, and Supabase.
 
 ## Features
 
@@ -33,8 +33,8 @@ A responsive e-commerce website for Yamaha RD motorcycle parts, built with React
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/yamaha-rd-parts.git
-cd yamaha-rd-parts
+git clone https://github.com/yourusername/sardaarji-auto-parts.git
+cd sardaarji-auto-parts
 ```
 
 ### 2. Set up the backend
@@ -523,5 +523,6 @@ Modparts
 ├─ restart_server.sh
 └─ schema.xml
 
-```#   m o d p a r t s  
+```#   m o d p a r t s 
+ 
  

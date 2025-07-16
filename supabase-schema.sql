@@ -1,4 +1,4 @@
--- Supabase Database Schema for Yamaha RD Parts Shop
+-- Supabase Database Schema for Sardaarji Auto Parts
 -- Run this in your Supabase SQL editor
 
 -- Enable Row Level Security (RLS) for all tables
@@ -105,7 +105,7 @@ ON CONFLICT DO NOTHING;
 -- Insert admin user (password: admin123)
 -- Note: In production, you should use a stronger password
 INSERT INTO users (email, password, first_name, last_name, role) VALUES
-('admin@yamahaparts.com', '$2a$10$8tPjdlv.K4A/zRs.YxFqS.XmZK5tGBE.PpxvPCuNv.5.iKq.zxzxe', 'Admin', 'User', 'admin')
+('admin@sardaarjiautoparts.com', '$2a$10$8tPjdlv.K4A/zRs.YxFqS.XmZK5tGBE.PpxvPCuNv.5.iKq.zxzxe', 'Admin', 'User', 'admin')
 ON CONFLICT (email) DO NOTHING;
 
 -- Enable Row Level Security

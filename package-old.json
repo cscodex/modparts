@@ -1,7 +1,7 @@
 {
-  "name": "yamaha-rd-parts-vercel",
+  "name": "sardaarji-auto-parts-vercel",
   "version": "1.0.0",
-  "description": "Yamaha RD Parts Shop - E-commerce application for Vercel deployment",
+  "description": "Sardaarji Auto Parts - E-commerce application for Vercel deployment",
   "main": "index.js",
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:frontend\"",

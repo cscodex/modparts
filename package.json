@@ -1,7 +1,7 @@
 {
-  "name": "yamaha-rd-parts-shop",
+  "name": "sardaarji-auto-parts",
   "version": "1.0.0",
-  "description": "Yamaha RD Parts Shop - Full Stack Application",
+  "description": "Sardaarji Auto Parts - Full Stack Application",
   "main": "index.js",
   "scripts": {
     "dev": "node dev-server.js",
