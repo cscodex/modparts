@@ -1,5 +1,32 @@
 const { supabaseAdmin } = require('../../lib/supabase')
-const { verifyToken } = require('../../lib/auth')
+const jwt = require('jsonwebtoken')
+
+// JWT secret for token verification
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
+
+// Helper function to verify JWT token and check admin role
+function verifyAdminToken(req) {
+  const authHeader = req.headers.authorization
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return null
+  }
+
+  const token = authHeader.substring(7)
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET)
+
+    // Check if user has admin role
+    if (decoded.role !== 'admin') {
+      return null
+    }
+
+    return decoded
+  } catch (error) {
+    console.error('Token verification failed:', error)
+    return null
+  }
+}
 
 module.exports = async function handler(req, res) {
   console.log('🔍 User approval API called')
@@ -7,13 +34,9 @@ module.exports = async function handler(req, res) {
   console.log('Request body:', req.body)
 
   // Verify admin authentication
-  try {
-    const user = await verifyToken(req)
-    if (!user || user.role !== 'admin') {
-      return res.status(403).json({ message: 'Admin access required' })
-    }
-  } catch (error) {
-    return res.status(401).json({ message: 'Authentication required' })
+  const adminUser = verifyAdminToken(req)
+  if (!adminUser) {
+    return res.status(403).json({ message: 'Admin access required' })
   }
 
   if (req.method === 'GET') {
