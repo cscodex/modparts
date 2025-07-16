@@ -416,50 +416,51 @@ const Products = () => {
   };
 
   return (
-    <div className="container mx-auto px-4">
-      {/* Confirm Dialog */}
-      <ConfirmDialog
-        isOpen={isOpen}
-        onClose={handleClose}
-        onConfirm={handleConfirm}
-        title={dialogProps.title}
-        message={dialogProps.message}
-        confirmText={dialogProps.confirmText}
-        cancelText={dialogProps.cancelText}
-        confirmButtonClass={dialogProps.confirmButtonClass}
-      />
+    <div className="bg-midnight-950 min-h-screen">
+      <div className="container mx-auto px-4 pt-6">
+        {/* Confirm Dialog */}
+        <ConfirmDialog
+          isOpen={isOpen}
+          onClose={handleClose}
+          onConfirm={handleConfirm}
+          title={dialogProps.title}
+          message={dialogProps.message}
+          confirmText={dialogProps.confirmText}
+          cancelText={dialogProps.cancelText}
+          confirmButtonClass={dialogProps.confirmButtonClass}
+        />
 
-      {/* Export Progress Bar */}
-      <ProgressBar
-        progress={exportProgress}
-        isVisible={isExporting}
-        onComplete={() => setIsExporting(false)}
-      />
+        {/* Export Progress Bar */}
+        <ProgressBar
+          progress={exportProgress}
+          isVisible={isExporting}
+          onComplete={() => setIsExporting(false)}
+        />
 
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-        <h1 className="text-3xl font-bold">Manage Products</h1>
-        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-          <button
-            onClick={() => setIsImportModalOpen(true)}
-            className="flex items-center justify-center bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full sm:w-auto transition-colors"
-            disabled={isExporting}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-            </svg>
-            Import from CSV
-          </button>
-          <Link
-            to="/admin/products/add"
-            className="flex items-center justify-center bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full sm:w-auto transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            Add New Product
-          </Link>
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+          <h1 className="text-3xl font-bold text-midnight-50">Manage Products</h1>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <button
+              onClick={() => setIsImportModalOpen(true)}
+              className="flex items-center justify-center bg-midnight-700 text-midnight-50 px-4 py-2 rounded hover:bg-midnight-600 w-full sm:w-auto transition-colors"
+              disabled={isExporting}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+              </svg>
+              Import from CSV
+            </button>
+            <Link
+              to="/admin/products/add"
+              className="flex items-center justify-center bg-midnight-700 text-midnight-50 px-4 py-2 rounded hover:bg-midnight-600 w-full sm:w-auto transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Add New Product
+            </Link>
+          </div>
         </div>
-      </div>
 
       {/* CSV Import Modal */}
       <CSVImportModal
@@ -469,22 +470,22 @@ const Products = () => {
         categories={categories}
       />
 
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 gap-4">
-          <div className="w-full md:w-1/3">
-            <label className="block text-gray-700 mb-2">Filter by Category</label>
-            <select
-              className="w-full p-2 border rounded"
-              value={selectedCategory}
-              onChange={(e) => {
-                // Log the selected value and its type
-                const selectedValue = e.target.value;
-                console.log('Category selected:', selectedValue, typeof selectedValue);
+        <div className="bg-midnight-900 border border-midnight-700 rounded-lg shadow p-6 mb-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 gap-4">
+            <div className="w-full md:w-1/3">
+              <label className="block text-midnight-200 mb-2">Filter by Category</label>
+              <select
+                className="w-full p-2 border border-midnight-600 bg-midnight-800 text-midnight-100 rounded"
+                value={selectedCategory}
+                onChange={(e) => {
+                  // Log the selected value and its type
+                  const selectedValue = e.target.value;
+                  console.log('Category selected:', selectedValue, typeof selectedValue);
 
-                // Set the selected category
-                setSelectedCategory(selectedValue);
-              }}
-            >
+                  // Set the selected category
+                  setSelectedCategory(selectedValue);
+                }}
+              >
               <option value="all">All Categories</option>
               {categories.filter(category => category && category.id && category.name).map(category => {
                 // Convert category.id to string to ensure consistent type
@@ -500,212 +501,213 @@ const Products = () => {
             </select>
           </div>
 
-          <div className="w-full md:w-1/2">
-            <label className="block text-gray-700 mb-2">Search Products</label>
-            <input
-              type="text"
-              placeholder="Search by name or description..."
-              className="w-full p-2 border rounded"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+            <div className="w-full md:w-1/2">
+              <label className="block text-midnight-200 mb-2">Search Products</label>
+              <input
+                type="text"
+                placeholder="Search by name or description..."
+                className="w-full p-2 border border-midnight-600 bg-midnight-800 text-midnight-100 rounded placeholder-midnight-400"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      {loading ? (
-        <div className="text-center py-12">
-          <LoadingSpinner size="xl" text="Loading products..." variant="gear" />
-        </div>
-      ) : error ? (
-        <div className="text-center py-12">
-          <p className="text-red-600 mb-4">{error}</p>
-        </div>
-      ) : filteredProducts.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-lg shadow">
-          <p className="text-xl text-gray-600 mb-6">No products found</p>
-          <Link
-            to="/admin/products/add"
-            className="bg-green-600 text-white px-6 py-3 rounded font-semibold hover:bg-green-700"
-          >
-            Add New Product
-          </Link>
-        </div>
-      ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="flex justify-between items-center p-4 bg-gray-50 border-b">
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="select-all"
-                checked={selectAll}
-                onChange={handleSelectAll}
-                className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-              />
-              <label htmlFor="select-all" className="text-sm font-medium text-gray-700">
-                Select All
-              </label>
-              <span className="text-sm text-gray-500">
-                ({selectedProducts.length} selected)
-              </span>
-            </div>
+        {loading ? (
+          <div className="text-center py-12">
+            <LoadingSpinner size="xl" text="Loading products..." variant="gear" />
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <p className="text-red-400 mb-4">{error}</p>
+          </div>
+        ) : filteredProducts.length === 0 ? (
+          <div className="text-center py-12 bg-midnight-900 border border-midnight-700 rounded-lg shadow">
+            <p className="text-xl text-midnight-300 mb-6">No products found</p>
+            <Link
+              to="/admin/products/add"
+              className="bg-midnight-700 text-midnight-50 px-6 py-3 rounded font-semibold hover:bg-midnight-600"
+            >
+              Add New Product
+            </Link>
+          </div>
+        ) : (
+          <div className="bg-midnight-900 border border-midnight-700 rounded-lg shadow overflow-hidden">
+            <div className="flex justify-between items-center p-4 bg-midnight-800 border-b border-midnight-700">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="select-all"
+                  checked={selectAll}
+                  onChange={handleSelectAll}
+                  className="h-4 w-4 text-midnight-300 rounded border-midnight-600 bg-midnight-700 focus:ring-midnight-500"
+                />
+                <label htmlFor="select-all" className="text-sm font-medium text-midnight-200">
+                  Select All
+                </label>
+                <span className="text-sm text-midnight-400">
+                  ({selectedProducts.length} selected)
+                </span>
+              </div>
 
-            <div className="flex space-x-2">
-              {selectedProducts.length > 0 && (
-                <>
-                  <button
-                    onClick={handleBulkDelete}
-                    className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
-                    disabled={isExporting}
-                  >
-                    Delete Selected
-                  </button>
-                  <div className="relative">
+              <div className="flex space-x-2">
+                {selectedProducts.length > 0 && (
+                  <>
                     <button
-                      className="bg-purple-600 text-white px-3 py-1 rounded text-sm hover:bg-purple-700 flex items-center"
-                      onClick={() => document.getElementById('exportSelectedDropdown').classList.toggle('hidden')}
+                      onClick={handleBulkDelete}
+                      className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
                       disabled={isExporting}
                     >
-                      <span>Export Selected</span>
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 ml-1" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                      </svg>
+                      Delete Selected
                     </button>
-                    <div id="exportSelectedDropdown" className="hidden absolute right-0 mt-1 w-40 bg-white rounded-md shadow-lg z-10">
-                      <div className="py-1">
-                        <button
-                          onClick={() => handleExportSelected('pdf')}
-                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          disabled={isExporting}
-                        >
-                          Export to PDF
-                        </button>
-                        <button
-                          onClick={() => handleExportSelected('xlsx')}
-                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          disabled={isExporting}
-                        >
-                          Export to Excel
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-
-          <table className="w-full">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="p-4 w-10">
-                  <span className="sr-only">Select</span>
-                </th>
-                <th className="text-left p-4">Product</th>
-                <th className="text-left p-4">Category</th>
-                <th className="text-center p-4">Price</th>
-                <th className="text-center p-4">Stock</th>
-                <th className="text-center p-4">Condition</th>
-                <th className="text-center p-4">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentProducts.map(product => (
-                <tr key={product.id} className="border-t">
-                  <td className="p-4 text-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedProducts.includes(product.id)}
-                      onChange={(e) => handleSelectProduct(product.id, e.target.checked)}
-                      className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                    />
-                  </td>
-                  <td className="p-4">
-                    <div className="flex items-center">
-                      <div className="w-12 h-12 mr-3">
-                        <PlaceholderImage
-                          src={processImageUrl(product.image_url)}
-                          alt={product.name}
-                          className="w-full h-full object-cover rounded"
-                          placeholderText="No Image"
-                          showIcon={false}
-                        />
-                      </div>
-                      <div>
-                        <p className="font-semibold">{product.name}</p>
-                        <p className="text-sm text-gray-600 truncate max-w-xs">
-                          {product.description.substring(0, 50)}
-                          {product.description.length > 50 ? '...' : ''}
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="p-4">{product.category_name}</td>
-                  <td className="p-4 text-center">${parseFloat(product.price).toFixed(2)}</td>
-                  <td className="p-4 text-center">
-                    <span className={`font-semibold ${product.quantity <= 0 ? 'text-red-600' : product.quantity <= 5 ? 'text-yellow-600' : 'text-green-600'}`}>
-                      {product.quantity}
-                    </span>
-                  </td>
-                  <td className="p-4 text-center">
-                    <span className="inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                      {product.condition_status}
-                    </span>
-                  </td>
-                  <td className="p-4 text-center">
-                    <div className="flex justify-center space-x-2">
-                      <Link
-                        to={`/products/${product.id}`}
-                        className="text-green-600 hover:text-green-800"
-                        title="View Product"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                          <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-                        </svg>
-                      </Link>
-                      <Link
-                        to={`/admin/products/edit/${product.id}`}
-                        className="text-blue-600 hover:text-blue-800"
-                        title="Edit Product"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                        </svg>
-                      </Link>
+                    <div className="relative">
                       <button
-                        onClick={() => handleDelete(product.id)}
-                        className="text-red-600 hover:text-red-800"
-                        title="Delete Product"
+                        className="bg-midnight-600 text-midnight-50 px-3 py-1 rounded text-sm hover:bg-midnight-500 flex items-center"
+                        onClick={() => document.getElementById('exportSelectedDropdown').classList.toggle('hidden')}
+                        disabled={isExporting}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                        <span>Export Selected</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                         </svg>
                       </button>
+                      <div id="exportSelectedDropdown" className="hidden absolute right-0 mt-1 w-40 bg-midnight-800 border border-midnight-600 rounded-md shadow-lg z-10">
+                        <div className="py-1">
+                          <button
+                            onClick={() => handleExportSelected('pdf')}
+                            className="block w-full text-left px-4 py-2 text-sm text-midnight-200 hover:bg-midnight-700"
+                            disabled={isExporting}
+                          >
+                            Export to PDF
+                          </button>
+                          <button
+                            onClick={() => handleExportSelected('xlsx')}
+                            className="block w-full text-left px-4 py-2 text-sm text-midnight-200 hover:bg-midnight-700"
+                            disabled={isExporting}
+                          >
+                            Export to Excel
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  </td>
+                  </>
+                )}
+              </div>
+          </div>
+
+            <table className="w-full">
+              <thead className="bg-midnight-800">
+                <tr>
+                  <th className="p-4 w-10">
+                    <span className="sr-only">Select</span>
+                  </th>
+                  <th className="text-left p-4 text-midnight-200">Product</th>
+                  <th className="text-left p-4 text-midnight-200">Category</th>
+                  <th className="text-center p-4 text-midnight-200">Price</th>
+                  <th className="text-center p-4 text-midnight-200">Stock</th>
+                  <th className="text-center p-4 text-midnight-200">Condition</th>
+                  <th className="text-center p-4 text-midnight-200">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {currentProducts.map(product => (
+                  <tr key={product.id} className="border-t border-midnight-700">
+                    <td className="p-4 text-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedProducts.includes(product.id)}
+                        onChange={(e) => handleSelectProduct(product.id, e.target.checked)}
+                        className="h-4 w-4 text-midnight-300 rounded border-midnight-600 bg-midnight-700 focus:ring-midnight-500"
+                      />
+                    </td>
+                    <td className="p-4">
+                      <div className="flex items-center">
+                        <div className="w-12 h-12 mr-3">
+                          <PlaceholderImage
+                            src={processImageUrl(product.image_url)}
+                            alt={product.name}
+                            className="w-full h-full object-cover rounded"
+                            placeholderText="No Image"
+                            showIcon={false}
+                          />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-midnight-100">{product.name}</p>
+                          <p className="text-sm text-midnight-400 truncate max-w-xs">
+                            {product.description.substring(0, 50)}
+                            {product.description.length > 50 ? '...' : ''}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="p-4 text-midnight-200">{product.category_name}</td>
+                    <td className="p-4 text-center text-midnight-200">${parseFloat(product.price).toFixed(2)}</td>
+                    <td className="p-4 text-center">
+                      <span className={`font-semibold ${product.quantity <= 0 ? 'text-red-400' : product.quantity <= 5 ? 'text-yellow-400' : 'text-green-400'}`}>
+                        {product.quantity}
+                      </span>
+                    </td>
+                    <td className="p-4 text-center">
+                      <span className="inline-block px-2 py-1 bg-midnight-600 text-midnight-100 rounded-full text-xs">
+                        {product.condition_status}
+                      </span>
+                    </td>
+                    <td className="p-4 text-center">
+                      <div className="flex justify-center space-x-2">
+                        <Link
+                          to={`/products/${product.id}`}
+                          className="text-green-400 hover:text-green-300"
+                          title="View Product"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                            <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                          </svg>
+                        </Link>
+                        <Link
+                          to={`/admin/products/edit/${product.id}`}
+                          className="text-midnight-300 hover:text-midnight-100"
+                          title="Edit Product"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                          </svg>
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(product.id)}
+                          className="text-red-400 hover:text-red-300"
+                          title="Delete Product"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
 
-          {/* Pagination */}
-          <Pagination
-            totalItems={filteredProducts.length}
-            itemsPerPage={itemsPerPage}
-            currentPage={currentPage}
-            onPageChange={setCurrentPage}
-            onItemsPerPageChange={setItemsPerPage}
-          />
-        </div>
-      )}
+            {/* Pagination */}
+            <Pagination
+              totalItems={filteredProducts.length}
+              itemsPerPage={itemsPerPage}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+              onItemsPerPageChange={setItemsPerPage}
+            />
+          </div>
+        )}
 
-      {/* Show pagination info even when no products are found */}
-      {!loading && !error && filteredProducts.length > 0 && (
-        <div className="mt-4 text-sm text-gray-600">
-          Showing {indexOfFirstProduct + 1} to {Math.min(indexOfLastProduct, filteredProducts.length)} of {filteredProducts.length} products
-        </div>
-      )}
+        {/* Show pagination info even when no products are found */}
+        {!loading && !error && filteredProducts.length > 0 && (
+          <div className="mt-4 text-sm text-midnight-400">
+            Showing {indexOfFirstProduct + 1} to {Math.min(indexOfLastProduct, filteredProducts.length)} of {filteredProducts.length} products
+          </div>
+        )}
+      </div>
     </div>
   );
 };

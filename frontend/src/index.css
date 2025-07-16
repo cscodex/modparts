@@ -42,6 +42,31 @@
   color: #374151; /* Gray-700 */
 }
 
+/* Midnight gray admin theme */
+.admin-midnight-primary {
+  background-color: #212529; /* midnight-800 */
+  color: #f8f9fa; /* midnight-50 */
+}
+
+.admin-midnight-secondary {
+  background-color: #343a40; /* midnight-700 */
+  color: #e9ecef; /* midnight-100 */
+}
+
+.admin-midnight-accent {
+  background-color: #495057; /* midnight-600 */
+  color: #dee2e6; /* midnight-200 */
+}
+
+.admin-midnight-hover {
+  background-color: #6c757d; /* midnight-500 */
+}
+
+.admin-midnight-card {
+  background-color: #1a1d20; /* midnight-900 */
+  border-color: #343a40; /* midnight-700 */
+}
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
