@@ -416,9 +416,8 @@ const Products = () => {
   };
 
   return (
-    <div className="bg-midnight-950 min-h-screen">
-      <div className="container mx-auto px-4 pt-6">
-        {/* Confirm Dialog */}
+    <div className="container mx-auto px-4 pt-6">
+      {/* Confirm Dialog */}
         <ConfirmDialog
           isOpen={isOpen}
           onClose={handleClose}
@@ -701,7 +700,6 @@ const Products = () => {
           </div>
         )}
 
-        {/* Show pagination info even when no products are found */}
         {!loading && !error && filteredProducts.length > 0 && (
           <div className="mt-4 text-sm text-midnight-400">
             Showing {indexOfFirstProduct + 1} to {Math.min(indexOfLastProduct, filteredProducts.length)} of {filteredProducts.length} products

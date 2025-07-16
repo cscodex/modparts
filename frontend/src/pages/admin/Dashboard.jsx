@@ -48,7 +48,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 bg-midnight-950 min-h-screen">
+    <div className="container mx-auto px-4">
       <div className="flex flex-col space-y-4 mb-6 pt-6">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-midnight-50">Admin Dashboard</h1>

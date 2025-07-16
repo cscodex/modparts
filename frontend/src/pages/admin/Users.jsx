@@ -399,105 +399,105 @@ const Users = () => {
   };
 
   return (
-    <div className="container mx-auto px-4">
-      {/* Confirm Dialog */}
-      <ConfirmDialog
-        isOpen={isOpen}
-        onClose={handleClose}
-        onConfirm={handleConfirm}
-        title={dialogProps.title}
-        message={dialogProps.message}
-        confirmText={dialogProps.confirmText}
-        cancelText={dialogProps.cancelText}
-        confirmButtonClass={dialogProps.confirmButtonClass}
-      />
+    <div className="container mx-auto px-4 pt-6">
+        {/* Confirm Dialog */}
+        <ConfirmDialog
+          isOpen={isOpen}
+          onClose={handleClose}
+          onConfirm={handleConfirm}
+          title={dialogProps.title}
+          message={dialogProps.message}
+          confirmText={dialogProps.confirmText}
+          cancelText={dialogProps.cancelText}
+          confirmButtonClass={dialogProps.confirmButtonClass}
+        />
 
-      {/* User Form Modal */}
-      <UserFormModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={handleSaveUser}
-        user={editingUser}
-      />
+        {/* User Form Modal */}
+        <UserFormModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSave={handleSaveUser}
+          user={editingUser}
+        />
 
-      {/* Export Progress Bar */}
-      <ProgressBar
-        progress={exportProgress}
-        isVisible={isExporting}
-        onComplete={() => setIsExporting(false)}
-      />
+        {/* Export Progress Bar */}
+        <ProgressBar
+          progress={exportProgress}
+          isVisible={isExporting}
+          onComplete={() => setIsExporting(false)}
+        />
 
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-        <h1 className="text-3xl font-bold">Manage Users</h1>
-        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-          <button
-            onClick={handleAddUser}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full sm:w-auto text-center"
-            disabled={isExporting}
-          >
-            Add New User
-          </button>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 gap-4">
-          <div className="w-full md:w-1/3">
-            <label className="block text-gray-700 mb-2">Filter by Role</label>
-            <select
-              className="w-full p-2 border rounded"
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+          <h1 className="text-3xl font-bold text-midnight-50">Manage Users</h1>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <button
+              onClick={handleAddUser}
+              className="bg-midnight-700 text-midnight-50 px-4 py-2 rounded hover:bg-midnight-600 w-full sm:w-auto text-center"
+              disabled={isExporting}
             >
-              <option value="all">All Roles</option>
-              <option value="admin">Admin</option>
-              <option value="customer">Customer</option>
-            </select>
-          </div>
-
-          <div className="w-full md:w-1/2">
-            <label className="block text-gray-700 mb-2">Search Users</label>
-            <input
-              type="text"
-              placeholder="Search by name or email..."
-              className="w-full p-2 border rounded"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+              Add New User
+            </button>
           </div>
         </div>
-      </div>
 
-      {loading ? (
-        <div className="text-center py-12">
-          <LoadingSpinner size="xl" text="Loading users..." variant="gear" />
-        </div>
-      ) : error ? (
-        <div className="text-center py-12">
-          <p className="text-red-600 mb-4">{error}</p>
-        </div>
-      ) : filteredUsers.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-lg shadow">
-          <p className="text-xl text-gray-600 mb-6">No users found</p>
-          <button
-            onClick={handleAddUser}
-            className="bg-green-600 text-white px-6 py-3 rounded font-semibold hover:bg-green-700"
-          >
-            Add New User
-          </button>
-        </div>
-      ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="flex justify-between items-center p-4 bg-gray-50 border-b">
-            <div className="flex items-center space-x-2">
+        <div className="bg-midnight-900 border border-midnight-700 rounded-lg shadow p-6 mb-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 gap-4">
+            <div className="w-full md:w-1/3">
+              <label className="block text-midnight-200 mb-2">Filter by Role</label>
+              <select
+                className="w-full p-2 border border-midnight-600 bg-midnight-800 text-midnight-100 rounded"
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+              >
+                <option value="all">All Roles</option>
+                <option value="admin">Admin</option>
+                <option value="customer">Customer</option>
+              </select>
+            </div>
+
+            <div className="w-full md:w-1/2">
+              <label className="block text-midnight-200 mb-2">Search Users</label>
               <input
-                type="checkbox"
-                id="select-all-users"
-                checked={selectAll}
-                onChange={handleSelectAll}
-                className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                type="text"
+                placeholder="Search by name or email..."
+                className="w-full p-2 border border-midnight-600 bg-midnight-800 text-midnight-100 rounded placeholder-midnight-400"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <label htmlFor="select-all-users" className="text-sm font-medium text-gray-700">
+            </div>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="text-center py-12">
+            <LoadingSpinner size="xl" text="Loading users..." variant="gear" />
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <p className="text-red-400 mb-4">{error}</p>
+          </div>
+        ) : filteredUsers.length === 0 ? (
+          <div className="text-center py-12 bg-midnight-900 border border-midnight-700 rounded-lg shadow">
+            <p className="text-xl text-midnight-300 mb-6">No users found</p>
+            <button
+              onClick={handleAddUser}
+              className="bg-midnight-700 text-midnight-50 px-6 py-3 rounded font-semibold hover:bg-midnight-600"
+            >
+              Add New User
+            </button>
+          </div>
+        ) : (
+          <div className="bg-midnight-900 border border-midnight-700 rounded-lg shadow overflow-hidden">
+            <div className="flex justify-between items-center p-4 bg-midnight-800 border-b border-midnight-700">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="select-all-users"
+                  checked={selectAll}
+                  onChange={handleSelectAll}
+                  className="h-4 w-4 text-midnight-300 rounded border-midnight-600 bg-midnight-700 focus:ring-midnight-500"
+                />
+                <label htmlFor="select-all-users" className="text-sm font-medium text-midnight-200">
                 Select All
               </label>
               <span className="text-sm text-gray-500">
