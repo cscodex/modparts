@@ -9,7 +9,10 @@
     "vercel-build": "cd frontend && npm install && npm run build",
     "postinstall": "node install-bcryptjs.js || echo 'bcryptjs installation skipped'",
     "prestart": "node fix-bcrypt.js",
-    "start": "node index.js"
+    "start": "node index.js",
+    "setup-storage": "node scripts/setup-supabase-storage.js",
+    "migrate-images": "node scripts/migrate-images-to-supabase.js",
+    "migrate-images:dry-run": "node scripts/migrate-images-to-supabase.js --dry-run"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",

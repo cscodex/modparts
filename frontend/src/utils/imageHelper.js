@@ -21,7 +21,17 @@ const getBaseUrl = () => {
 };
 
 /**
+ * Check if URL is from Supabase Storage
+ * @param {string} url
+ * @returns {boolean}
+ */
+export const isSupabaseStorageUrl = (url) => {
+  return url && url.includes('supabase.co/storage/v1/object/public/');
+};
+
+/**
  * Process image URL to ensure it's properly formatted
+ * Now handles Supabase Storage URLs properly
  *
  * @param {string} imageUrl - The image URL to process
  * @param {string} fallbackUrl - Optional fallback URL if the image is invalid
@@ -35,6 +45,12 @@ export const processImageUrl = (imageUrl, fallbackUrl = null) => {
 
   // Log the original URL for debugging
   console.log('Processing image URL:', imageUrl);
+
+  // If it's a Supabase Storage URL, return it as-is (it's already a full URL)
+  if (isSupabaseStorageUrl(imageUrl)) {
+    console.log('Using Supabase Storage URL as-is:', imageUrl);
+    return imageUrl;
+  }
 
   // If it's already a valid URL, return it as is
   if (isValidUrl(imageUrl)) {

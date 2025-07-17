@@ -2,6 +2,8 @@ const path = require('path')
 const fs = require('fs')
 const crypto = require('crypto')
 const jwt = require('jsonwebtoken')
+const { supabaseAdmin } = require('../../lib/supabase')
+const supabaseStorage = require('../../lib/supabaseStorage')
 
 // Helper function to verify JWT token
 function verifyToken(req) {
@@ -82,48 +84,40 @@ module.exports = async (req, res) => {
         })
       }
 
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads')
+      // Note: Using Supabase Storage instead of filesystem
 
-      // Create uploads directory if it doesn't exist
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true })
-        console.log('Created uploads directory:', uploadDir)
-      }
-
-      // Generate unique filename
-      const fileExtension = path.extname(filename)
-      const uniqueSuffix = crypto.randomBytes(16).toString('hex')
-      const newFilename = `img_${Date.now()}_${uniqueSuffix}${fileExtension}`
-      const filePath = path.join(uploadDir, newFilename)
-      const fileUrl = `/uploads/${newFilename}`
-
-      // Save file to disk
+      // Upload to Supabase Storage instead of filesystem
       try {
-        fs.writeFileSync(filePath, buffer)
-        console.log('✅ File saved successfully to:', filePath)
-      } catch (writeError) {
-        console.error('❌ Error writing file:', writeError)
+        const uploadResult = await supabaseStorage.uploadFile(
+          buffer,
+          filename,
+          mimetype,
+          user.id || 'anonymous'
+        )
+
+        console.log('✅ File uploaded to Supabase Storage:', uploadResult)
+
+        return res.status(200).json({
+          success: true,
+          message: 'File uploaded successfully to Supabase Storage',
+          file_url: uploadResult.url,
+          data: {
+            url: uploadResult.url,
+            path: uploadResult.path,
+            bucket: uploadResult.bucket,
+            size: uploadResult.size,
+            filename: filename
+          }
+        })
+
+      } catch (uploadError) {
+        console.error('❌ Error uploading to Supabase Storage:', uploadError)
         return res.status(500).json({
           success: false,
-          message: 'Failed to save file to disk',
-          error: writeError.message
+          message: 'Failed to upload file to Supabase Storage',
+          error: uploadError.message
         })
       }
-
-      // Return success response with both formats for compatibility
-      return res.status(200).json({
-        success: true,
-        message: 'File uploaded successfully',
-        file_url: fileUrl,  // Frontend expects this field
-        data: {
-          filename: newFilename,
-          originalName: filename,
-          size: buffer.length,
-          mimetype: mimetype,
-          url: fileUrl,
-          path: filePath
-        }
-      })
     }
 
     // For multipart/form-data, return a helpful message for now
