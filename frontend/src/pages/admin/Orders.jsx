@@ -6,6 +6,7 @@ import Pagination from '../../components/ui/Pagination';
 import ProgressBar from '../../components/ui/ProgressBar';
 import { exportToPDF, exportToXLSX } from '../../utils/exportUtils';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import { emailService } from '../../services/emailService';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -69,12 +70,28 @@ const Orders = () => {
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
+      // Find the order data for email before updating
+      const orderData = orders.find(order => order.id === orderId);
+
+      // Update order status in database
       await updateOrderStatus(orderId, newStatus);
 
       // Update local state
       setOrders(orders.map(order =>
         order.id === orderId ? { ...order, status: newStatus } : order
       ));
+
+      // Send status update email (non-blocking)
+      try {
+        if (orderData && ['shipped', 'delivered', 'cancelled'].includes(newStatus)) {
+          console.log(`📧 Sending ${newStatus} email for order ${orderId}`);
+          await emailService.sendOrderStatusUpdate(orderData, newStatus);
+          console.log(`✅ ${newStatus} email sent successfully`);
+        }
+      } catch (emailError) {
+        console.error('❌ Failed to send status update email:', emailError);
+        // Don't show error to user - email failure shouldn't block status update
+      }
 
       success('Order status updated successfully');
     } catch (err) {

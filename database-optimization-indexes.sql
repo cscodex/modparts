@@ -175,5 +175,140 @@ ANALYZE public.categories;
 -- VACUUM ANALYZE public.products;
 -- VACUUM ANALYZE public.orders;
 
+-- ============================================================================
+-- EMAIL SYSTEM SETUP
+-- ============================================================================
+
+-- Create email logs table for tracking sent emails
+CREATE TABLE IF NOT EXISTS public.email_logs (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    order_id UUID REFERENCES public.orders(id) ON DELETE CASCADE,
+    email_type VARCHAR(50) NOT NULL, -- 'order_confirmation', 'order_shipped', etc.
+    recipient_email VARCHAR(255) NOT NULL,
+    email_id VARCHAR(255), -- External email service ID (Resend, SendGrid, etc.)
+    status VARCHAR(20) DEFAULT 'pending', -- 'pending', 'sent', 'failed', 'bounced'
+    error_message TEXT,
+    sent_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Add indexes for email logs
+CREATE INDEX IF NOT EXISTS idx_email_logs_order_id ON public.email_logs(order_id);
+CREATE INDEX IF NOT EXISTS idx_email_logs_email_type ON public.email_logs(email_type);
+CREATE INDEX IF NOT EXISTS idx_email_logs_status ON public.email_logs(status);
+CREATE INDEX IF NOT EXISTS idx_email_logs_recipient ON public.email_logs(recipient_email);
+CREATE INDEX IF NOT EXISTS idx_email_logs_sent_at ON public.email_logs(sent_at DESC);
+
+-- Enable RLS for email logs
+ALTER TABLE public.email_logs ENABLE ROW LEVEL SECURITY;
+
+-- RLS policy for email logs (admin only)
+CREATE POLICY "Admin can view email logs" ON public.email_logs
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM public.users
+            WHERE users.id = auth.uid()
+            AND users.role = 'admin'
+        )
+    );
+
+-- Function to automatically send order confirmation email
+CREATE OR REPLACE FUNCTION send_order_confirmation_email()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Only send email for new orders (not updates)
+    IF TG_OP = 'INSERT' THEN
+        -- Call the Edge Function to send email
+        PERFORM
+            net.http_post(
+                url := current_setting('app.supabase_url') || '/functions/v1/send-order-email',
+                headers := jsonb_build_object(
+                    'Content-Type', 'application/json',
+                    'Authorization', 'Bearer ' || current_setting('app.supabase_anon_key')
+                ),
+                body := jsonb_build_object(
+                    'type', 'order_confirmation',
+                    'data', jsonb_build_object(
+                        'orderId', NEW.id::text,
+                        'userEmail', (SELECT email FROM public.users WHERE id = NEW.user_id),
+                        'userName', (SELECT first_name || ' ' || last_name FROM public.users WHERE id = NEW.user_id),
+                        'orderTotal', NEW.total_amount,
+                        'orderStatus', NEW.status,
+                        'shippingAddress', jsonb_build_object(
+                            'address', NEW.shipping_address,
+                            'city', NEW.shipping_city,
+                            'state', NEW.shipping_state,
+                            'zipCode', NEW.shipping_zip_code
+                        )
+                    )
+                )
+            );
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to send order status update emails
+CREATE OR REPLACE FUNCTION send_order_status_email()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Only send email if status actually changed
+    IF TG_OP = 'UPDATE' AND OLD.status IS DISTINCT FROM NEW.status THEN
+        -- Determine email type based on new status
+        PERFORM
+            net.http_post(
+                url := current_setting('app.supabase_url') || '/functions/v1/send-order-email',
+                headers := jsonb_build_object(
+                    'Content-Type', 'application/json',
+                    'Authorization', 'Bearer ' || current_setting('app.supabase_anon_key')
+                ),
+                body := jsonb_build_object(
+                    'type', CASE
+                        WHEN NEW.status = 'shipped' THEN 'order_shipped'
+                        WHEN NEW.status = 'delivered' THEN 'order_delivered'
+                        WHEN NEW.status = 'cancelled' THEN 'order_cancelled'
+                        ELSE 'order_status_update'
+                    END,
+                    'data', jsonb_build_object(
+                        'orderId', NEW.id::text,
+                        'userEmail', (SELECT email FROM public.users WHERE id = NEW.user_id),
+                        'userName', (SELECT first_name || ' ' || last_name FROM public.users WHERE id = NEW.user_id),
+                        'orderTotal', NEW.total_amount,
+                        'orderStatus', NEW.status,
+                        'shippingAddress', jsonb_build_object(
+                            'address', NEW.shipping_address,
+                            'city', NEW.shipping_city,
+                            'state', NEW.shipping_state,
+                            'zipCode', NEW.shipping_zip_code
+                        )
+                    )
+                )
+            );
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Create triggers for automatic email sending
+DROP TRIGGER IF EXISTS trigger_send_order_confirmation ON public.orders;
+CREATE TRIGGER trigger_send_order_confirmation
+    AFTER INSERT ON public.orders
+    FOR EACH ROW
+    EXECUTE FUNCTION send_order_confirmation_email();
+
+DROP TRIGGER IF EXISTS trigger_send_order_status_update ON public.orders;
+CREATE TRIGGER trigger_send_order_status_update
+    AFTER UPDATE ON public.orders
+    FOR EACH ROW
+    EXECUTE FUNCTION send_order_status_email();
+
 -- Success message
-SELECT 'Database indexes created successfully! Run ANALYZE on your tables for optimal performance.' as status;
+SELECT 'Database indexes and email system created successfully!
+Configure your Edge Function environment variables:
+- RESEND_API_KEY
+- FROM_EMAIL
+- SUPABASE_URL
+- SUPABASE_SERVICE_ROLE_KEY' as status;
