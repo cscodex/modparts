@@ -399,8 +399,8 @@ const Users = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 pt-6">
-        {/* Confirm Dialog */}
+    <div>
+      {/* Confirm Dialog */}
         <ConfirmDialog
           isOpen={isOpen}
           onClose={handleClose}
@@ -427,8 +427,8 @@ const Users = () => {
           onComplete={() => setIsExporting(false)}
         />
 
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-          <h1 className="text-3xl font-bold text-midnight-50">Manage Users</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <h2 className="text-2xl font-bold text-white">Manage Users</h2>
           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <button
               onClick={handleAddUser}

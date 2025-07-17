@@ -416,7 +416,7 @@ const Products = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 pt-6">
+    <div>
       {/* Confirm Dialog */}
         <ConfirmDialog
           isOpen={isOpen}
@@ -436,8 +436,8 @@ const Products = () => {
           onComplete={() => setIsExporting(false)}
         />
 
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-          <h1 className="text-3xl font-bold text-midnight-50">Manage Products</h1>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+          <h2 className="text-2xl font-bold text-white">Manage Products</h2>
           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <button
               onClick={() => setIsImportModalOpen(true)}
@@ -472,9 +472,9 @@ const Products = () => {
         <div className="bg-midnight-900 border border-midnight-700 rounded-lg shadow p-6 mb-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 gap-4">
             <div className="w-full md:w-1/3">
-              <label className="block text-midnight-200 mb-2">Filter by Category</label>
+              <label className="block text-white mb-2">Filter by Category</label>
               <select
-                className="w-full p-2 border border-midnight-600 bg-midnight-800 text-midnight-100 rounded"
+                className="w-full p-2 border border-midnight-600 bg-midnight-800 text-white rounded"
                 value={selectedCategory}
                 onChange={(e) => {
                   // Log the selected value and its type
@@ -501,11 +501,11 @@ const Products = () => {
           </div>
 
             <div className="w-full md:w-1/2">
-              <label className="block text-midnight-200 mb-2">Search Products</label>
+              <label className="block text-white mb-2">Search Products</label>
               <input
                 type="text"
                 placeholder="Search by name or description..."
-                className="w-full p-2 border border-midnight-600 bg-midnight-800 text-midnight-100 rounded placeholder-midnight-400"
+                className="w-full p-2 border border-midnight-600 bg-midnight-800 text-white rounded placeholder-gray-400"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />

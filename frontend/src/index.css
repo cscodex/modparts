@@ -45,17 +45,17 @@
 /* Midnight gray admin theme */
 .admin-midnight-primary {
   background-color: #212529; /* midnight-800 */
-  color: #f8f9fa; /* midnight-50 */
+  color: #ffffff; /* Pure white for better visibility */
 }
 
 .admin-midnight-secondary {
   background-color: #343a40; /* midnight-700 */
-  color: #e9ecef; /* midnight-100 */
+  color: #ffffff; /* Pure white for better visibility */
 }
 
 .admin-midnight-accent {
   background-color: #495057; /* midnight-600 */
-  color: #dee2e6; /* midnight-200 */
+  color: #ffffff; /* Pure white for better visibility */
 }
 
 .admin-midnight-hover {
@@ -65,6 +65,19 @@
 .admin-midnight-card {
   background-color: #1a1d20; /* midnight-900 */
   border-color: #343a40; /* midnight-700 */
+}
+
+/* Admin text visibility improvements */
+.admin-text-primary {
+  color: #ffffff !important; /* Pure white */
+}
+
+.admin-text-secondary {
+  color: #e9ecef !important; /* Light gray */
+}
+
+.admin-text-muted {
+  color: #adb5bd !important; /* Medium gray */
 }
 
 :root {

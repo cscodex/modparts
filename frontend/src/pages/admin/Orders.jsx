@@ -307,7 +307,7 @@ const Orders = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 pt-6">
+    <div>
       {/* Export Progress Bar */}
       <ProgressBar
         progress={exportProgress}
@@ -315,8 +315,8 @@ const Orders = () => {
         onComplete={() => setIsExporting(false)}
       />
 
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-        <h1 className="text-3xl font-bold text-midnight-50">Manage Orders</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <h2 className="text-2xl font-bold text-white">Manage Orders</h2>
       </div>
 
       <div className="bg-midnight-900 border border-midnight-700 rounded-lg shadow p-6 mb-6">

@@ -76,10 +76,10 @@ const UserApproval = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 pt-6">
+    <div>
       <div className="space-y-6">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-midnight-50">User Approval</h1>
+            <h2 className="text-2xl font-bold text-white">User Approval</h2>
             <div className="text-sm text-midnight-400">
               {pendingUsers.length} pending approval{pendingUsers.length !== 1 ? 's' : ''}
             </div>

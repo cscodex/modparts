@@ -48,10 +48,10 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="container mx-auto px-4">
-      <div className="flex flex-col space-y-4 mb-6 pt-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-midnight-50">Admin Dashboard</h1>
+    <div>
+      <div className="flex flex-col space-y-4 mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <h2 className="text-2xl font-bold text-white">Dashboard Overview</h2>
           <div className="flex space-x-2">
             <a
               href="/Modparts/restart.php"
@@ -127,8 +127,8 @@ const Dashboard = () => {
               </svg>
             </div>
             <div>
-              <p className="text-midnight-300 text-sm">Total Products</p>
-              <p className="text-2xl font-bold text-midnight-50">{dashboardData.total_products}</p>
+              <p className="text-gray-300 text-sm">Total Products</p>
+              <p className="text-2xl font-bold text-white">{dashboardData.total_products}</p>
             </div>
           </div>
         </div>
