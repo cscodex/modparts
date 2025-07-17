@@ -80,6 +80,10 @@ const Profile = () => {
           preferred_payment_method: userData.preferred_payment_method || 'credit_card'
         });
 
+        // Update checkbox states based on loaded data
+        setSameAsShipping(!userData.shipping_address);
+        setSameAsBilling(!userData.billing_address);
+
         console.log('✅ Profile: Form data updated with profile data');
       } catch (err) {
         console.error('❌ Profile: Error fetching profile:', err);
@@ -108,6 +112,10 @@ const Profile = () => {
             preferred_address: user.preferred_address || 'shipping',
             preferred_payment_method: user.preferred_payment_method || 'credit_card'
           });
+
+          // Update checkbox states for fallback data
+          setSameAsShipping(!user.shipping_address);
+          setSameAsBilling(!user.billing_address);
         }
       } finally {
         setProfileLoading(false);
@@ -164,11 +172,38 @@ const Profile = () => {
       updateUserData(formData);
 
       // Fetch fresh profile data from server
-      const freshProfileData = await getUserProfile();
+      const freshProfileResponse = await getUserProfile();
+      const freshProfileData = freshProfileResponse.data || freshProfileResponse;
       console.log('Fresh profile data after update:', freshProfileData);
 
       // Update user data in context with fresh data from server
       updateUserData(freshProfileData);
+
+      // Update form data with fresh data to reflect saved changes
+      setFormData({
+        first_name: freshProfileData.first_name || '',
+        last_name: freshProfileData.last_name || '',
+        email: freshProfileData.email || '',
+        phone: freshProfileData.phone || '',
+        address: freshProfileData.address || '',
+        city: freshProfileData.city || '',
+        state: freshProfileData.state || '',
+        zip_code: freshProfileData.zip_code || '',
+        shipping_address: freshProfileData.shipping_address || '',
+        shipping_city: freshProfileData.shipping_city || '',
+        shipping_state: freshProfileData.shipping_state || '',
+        shipping_zip_code: freshProfileData.shipping_zip_code || '',
+        billing_address: freshProfileData.billing_address || '',
+        billing_city: freshProfileData.billing_city || '',
+        billing_state: freshProfileData.billing_state || '',
+        billing_zip_code: freshProfileData.billing_zip_code || '',
+        preferred_address: freshProfileData.preferred_address || 'shipping',
+        preferred_payment_method: freshProfileData.preferred_payment_method || 'credit_card'
+      });
+
+      // Update checkbox states based on saved data
+      setSameAsShipping(!freshProfileData.shipping_address);
+      setSameAsBilling(!freshProfileData.billing_address);
 
       success('Profile updated successfully');
       setEditMode(false);
@@ -650,11 +685,11 @@ const Profile = () => {
                 )}
 
                 <h3 className="text-lg font-semibold mb-2 mt-6">Address Preferences</h3>
-                <p>Preferred Address for Checkout: {user.preferred_address === 'billing' ? 'Billing Address' : 'Shipping Address'}</p>
+                <p>Preferred Address for Checkout: {formData.preferred_address === 'billing' ? 'Billing Address' : 'Shipping Address'}</p>
 
                 <h3 className="text-lg font-semibold mb-2 mt-6">Payment Preferences</h3>
-                <p>Preferred Payment Method: {user.preferred_payment_method ?
-                  user.preferred_payment_method.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) :
+                <p>Preferred Payment Method: {formData.preferred_payment_method ?
+                  formData.preferred_payment_method.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) :
                   'Not set'}</p>
               </div>
             )}

@@ -291,12 +291,12 @@ const Dashboard = () => {
                         <td className="p-2 text-white">{order.first_name} {order.last_name}</td>
                         <td className="p-2">
                           <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${
-                            !order.status || typeof order.status !== 'string' ? 'bg-midnight-600 text-midnight-200' :
-                            order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                            order.status === 'processing' ? 'bg-blue-100 text-blue-800' :
-                            order.status === 'shipped' ? 'bg-purple-100 text-purple-800' :
-                            order.status === 'delivered' ? 'bg-green-100 text-green-800' :
-                            'bg-red-100 text-red-800'
+                            !order.status || typeof order.status !== 'string' ? 'bg-gray-600 text-gray-100' :
+                            order.status === 'pending' ? 'bg-yellow-600 text-yellow-100' :
+                            order.status === 'processing' ? 'bg-blue-600 text-blue-100' :
+                            order.status === 'shipped' ? 'bg-purple-600 text-purple-100' :
+                            order.status === 'delivered' ? 'bg-green-600 text-green-100' :
+                            'bg-red-600 text-red-100'
                           }`}>
                             {order.status && typeof order.status === 'string' && order.status.length > 0
                               ? (order.status.charAt(0).toUpperCase() + order.status.slice(1))

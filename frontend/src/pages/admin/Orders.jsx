@@ -288,21 +288,21 @@ const Orders = () => {
     }
   };
 
-  // Function to get status badge color
+  // Function to get status badge color (dark theme)
   const getStatusColor = (status) => {
     switch (status) {
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-600 text-yellow-100';
       case 'processing':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-600 text-blue-100';
       case 'shipped':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-600 text-purple-100';
       case 'delivered':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-600 text-green-100';
       case 'cancelled':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-600 text-red-100';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-600 text-gray-100';
     }
   };
 
@@ -455,16 +455,15 @@ const Orders = () => {
                     <td className="p-4 text-white">{new Date(order.created_at || Date.now()).toLocaleDateString()}</td>
                     <td className="p-4 text-center">
                       <select
-                        className={`px-3 py-1 rounded-full text-sm font-semibold bg-midnight-700 text-white border border-midnight-600 ${getStatusColor(order.status && typeof order.status === 'string' ? order.status : 'pending')}`}
+                        className={`px-3 py-1 rounded-full text-sm font-semibold border-0 ${getStatusColor(order.status && typeof order.status === 'string' ? order.status : 'pending')}`}
                         value={order.status && typeof order.status === 'string' ? order.status : 'pending'}
                         onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                        style={{ color: 'white' }}
                       >
-                        <option value="pending" className="bg-midnight-700 text-white">Pending</option>
-                        <option value="processing" className="bg-midnight-700 text-white">Processing</option>
-                        <option value="shipped" className="bg-midnight-700 text-white">Shipped</option>
-                        <option value="delivered" className="bg-midnight-700 text-white">Delivered</option>
-                        <option value="cancelled" className="bg-midnight-700 text-white">Cancelled</option>
+                        <option value="pending" className="bg-yellow-600 text-yellow-100">Pending</option>
+                        <option value="processing" className="bg-blue-600 text-blue-100">Processing</option>
+                        <option value="shipped" className="bg-purple-600 text-purple-100">Shipped</option>
+                        <option value="delivered" className="bg-green-600 text-green-100">Delivered</option>
+                        <option value="cancelled" className="bg-red-600 text-red-100">Cancelled</option>
                       </select>
                     </td>
                     <td className="p-4 text-right font-semibold text-white">
