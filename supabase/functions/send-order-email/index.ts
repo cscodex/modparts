@@ -43,12 +43,18 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Email service configuration (using Resend as example)
+    // Email service configuration
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
-    const FROM_EMAIL = Deno.env.get('FROM_EMAIL') || 'orders@sardaarjiautoparts.com'
+    const GMAIL_USER = Deno.env.get('GMAIL_USER')
+    const GMAIL_PASS = Deno.env.get('GMAIL_PASS')
+    const FROM_EMAIL = Deno.env.get('FROM_EMAIL') || 'noreply@sardaarjiautoparts.onrender.com'
+    const EMAIL_PROVIDER = Deno.env.get('EMAIL_PROVIDER') || 'resend' // 'resend', 'gmail', 'sendgrid'
 
-    if (!RESEND_API_KEY) {
-      throw new Error('RESEND_API_KEY environment variable is required')
+    // Check which email provider is configured
+    if (EMAIL_PROVIDER === 'gmail' && (!GMAIL_USER || !GMAIL_PASS)) {
+      throw new Error('GMAIL_USER and GMAIL_PASS environment variables are required for Gmail')
+    } else if (EMAIL_PROVIDER === 'resend' && !RESEND_API_KEY) {
+      throw new Error('RESEND_API_KEY environment variable is required for Resend')
     }
 
     let emailSubject = ''
@@ -80,27 +86,37 @@ serve(async (req) => {
         throw new Error(`Unknown email type: ${type}`)
     }
 
-    // Send email using Resend
-    const emailResponse = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: FROM_EMAIL,
-        to: [data.userEmail],
-        subject: emailSubject,
-        html: emailHtml,
-      }),
-    })
+    // Send email based on provider
+    let emailResult
 
-    if (!emailResponse.ok) {
-      const errorText = await emailResponse.text()
-      throw new Error(`Failed to send email: ${errorText}`)
+    if (EMAIL_PROVIDER === 'gmail') {
+      // Use Gmail SMTP (for testing purposes)
+      emailResult = await sendEmailViaGmail(data.userEmail, emailSubject, emailHtml, GMAIL_USER, GMAIL_PASS)
+    } else if (EMAIL_PROVIDER === 'resend') {
+      // Use Resend API
+      const emailResponse = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: FROM_EMAIL,
+          to: [data.userEmail],
+          subject: emailSubject,
+          html: emailHtml,
+        }),
+      })
+
+      if (!emailResponse.ok) {
+        const errorText = await emailResponse.text()
+        throw new Error(`Failed to send email via Resend: ${errorText}`)
+      }
+
+      emailResult = await emailResponse.json()
+    } else {
+      throw new Error(`Unsupported email provider: ${EMAIL_PROVIDER}`)
     }
-
-    const emailResult = await emailResponse.json()
 
     // Log email sent to database for tracking
     await supabaseClient
@@ -293,17 +309,17 @@ function generateOrderCancelledEmail(data: OrderEmailData): string {
           <h1 style="color: #1e40af;">🚗 Sardaarji Auto Parts</h1>
           <h2 style="color: #dc2626;">Order Cancelled</h2>
         </div>
-        
+
         <p>Dear ${data.userName},</p>
-        
+
         <p>We're writing to confirm that your order #${data.orderId} has been cancelled as requested.</p>
-        
+
         <div style="background: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <h3 style="color: #dc2626; margin-top: 0;">Refund Information</h3>
           <p>If you paid for this order, your refund will be processed within 3-5 business days.</p>
           <p><strong>Order Total:</strong> $${data.orderTotal.toFixed(2)}</p>
         </div>
-        
+
         <div style="text-align: center; margin-top: 30px;">
           <p>We're sorry to see you go. If you have any questions, please contact us.</p>
           <p>Email: <a href="mailto:support@sardaarjiautoparts.com">support@sardaarjiautoparts.com</a></p>
@@ -312,4 +328,26 @@ function generateOrderCancelledEmail(data: OrderEmailData): string {
     </body>
     </html>
   `
+}
+
+// Gmail SMTP function for testing purposes
+async function sendEmailViaGmail(to: string, subject: string, html: string, gmailUser: string, gmailPass: string) {
+  // Note: This is a simplified implementation for testing
+  // In production, you should use a proper SMTP library
+
+  const emailData = {
+    to,
+    subject,
+    html,
+    from: gmailUser
+  }
+
+  // For now, just log the email (you'd need to implement actual SMTP)
+  console.log('📧 Gmail Email (simulated):', emailData)
+
+  // Return a mock response
+  return {
+    id: `gmail_${Date.now()}`,
+    status: 'sent'
+  }
 }

@@ -267,24 +267,52 @@ class EmailService {
    */
   async testEmailConfiguration() {
     try {
+      console.log('🧪 Testing email configuration...');
+
       const { data, error } = await supabase.functions.invoke('send-order-email', {
         body: {
           type: 'test',
           data: {
             userEmail: 'test@example.com',
-            userName: 'Test User'
+            userName: 'Test User',
+            orderId: 'TEST-' + Date.now(),
+            orderTotal: 99.99,
+            orderItems: [
+              { name: 'Test Product', quantity: 1, price: 99.99 }
+            ],
+            orderStatus: 'pending',
+            shippingAddress: {
+              address: '123 Test St',
+              city: 'Test City',
+              state: 'TS',
+              zipCode: '12345'
+            }
           }
         }
       });
 
       if (error) {
+        console.error('❌ Email test error:', error);
         throw error;
       }
 
-      return { success: true, message: 'Email configuration is working correctly' };
+      console.log('✅ Email test successful:', data);
+      return { success: true, message: 'Email configuration is working correctly', data };
     } catch (error) {
       console.error('❌ Email configuration test failed:', error);
-      return { success: false, error: error.message };
+
+      // Provide helpful error messages for common issues
+      let helpfulMessage = error.message;
+
+      if (error.message.includes('domain')) {
+        helpfulMessage = `Domain verification issue. Try using a default email provider domain like 'onboarding@resend.dev' instead of a custom domain. Original error: ${error.message}`;
+      } else if (error.message.includes('API key')) {
+        helpfulMessage = `API key issue. Check that your email provider API key is correctly set in Supabase environment variables. Original error: ${error.message}`;
+      } else if (error.message.includes('Function not found')) {
+        helpfulMessage = `Edge function not deployed. Run 'supabase functions deploy send-order-email' to deploy the email function. Original error: ${error.message}`;
+      }
+
+      return { success: false, error: helpfulMessage };
     }
   }
 }
