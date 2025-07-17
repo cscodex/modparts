@@ -455,15 +455,16 @@ const Orders = () => {
                     <td className="p-4 text-white">{new Date(order.created_at || Date.now()).toLocaleDateString()}</td>
                     <td className="p-4 text-center">
                       <select
-                        className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(order.status && typeof order.status === 'string' ? order.status : 'pending')}`}
+                        className={`px-3 py-1 rounded-full text-sm font-semibold bg-midnight-700 text-white border border-midnight-600 ${getStatusColor(order.status && typeof order.status === 'string' ? order.status : 'pending')}`}
                         value={order.status && typeof order.status === 'string' ? order.status : 'pending'}
                         onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                        style={{ color: 'white' }}
                       >
-                        <option value="pending">Pending</option>
-                        <option value="processing">Processing</option>
-                        <option value="shipped">Shipped</option>
-                        <option value="delivered">Delivered</option>
-                        <option value="cancelled">Cancelled</option>
+                        <option value="pending" className="bg-midnight-700 text-white">Pending</option>
+                        <option value="processing" className="bg-midnight-700 text-white">Processing</option>
+                        <option value="shipped" className="bg-midnight-700 text-white">Shipped</option>
+                        <option value="delivered" className="bg-midnight-700 text-white">Delivered</option>
+                        <option value="cancelled" className="bg-midnight-700 text-white">Cancelled</option>
                       </select>
                     </td>
                     <td className="p-4 text-right font-semibold text-white">

@@ -443,26 +443,28 @@ const Users = () => {
         <div className="bg-midnight-900 border border-midnight-700 rounded-lg shadow p-6 mb-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 gap-4">
             <div className="w-full md:w-1/3">
-              <label className="block text-midnight-200 mb-2">Filter by Role</label>
+              <label className="block text-white mb-2">Filter by Role</label>
               <select
-                className="w-full p-2 border border-midnight-600 bg-midnight-800 text-midnight-100 rounded"
+                className="w-full p-2 border border-midnight-600 bg-midnight-800 text-white rounded"
                 value={roleFilter}
                 onChange={(e) => setRoleFilter(e.target.value)}
+                style={{ color: 'white' }}
               >
-                <option value="all">All Roles</option>
-                <option value="admin">Admin</option>
-                <option value="customer">Customer</option>
+                <option value="all" className="bg-midnight-800 text-white">All Roles</option>
+                <option value="admin" className="bg-midnight-800 text-white">Admin</option>
+                <option value="customer" className="bg-midnight-800 text-white">Customer</option>
               </select>
             </div>
 
             <div className="w-full md:w-1/2">
-              <label className="block text-midnight-200 mb-2">Search Users</label>
+              <label className="block text-white mb-2">Search Users</label>
               <input
                 type="text"
                 placeholder="Search by name or email..."
-                className="w-full p-2 border border-midnight-600 bg-midnight-800 text-midnight-100 rounded placeholder-midnight-400"
+                className="w-full p-2 border border-midnight-600 bg-midnight-800 text-white rounded placeholder-gray-400"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                style={{ color: 'white' }}
               />
             </div>
           </div>

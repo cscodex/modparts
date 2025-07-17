@@ -141,35 +141,35 @@ const Dashboard = () => {
               </svg>
             </div>
             <div className="flex-1">
-              <p className="text-midnight-300 text-sm">Total Orders</p>
-              <p className="text-2xl font-bold text-midnight-50">{dashboardData.total_orders}</p>
+              <p className="text-gray-300 text-sm">Total Orders</p>
+              <p className="text-2xl font-bold text-white">{dashboardData.total_orders}</p>
 
               {/* Order status counts */}
               <div className="mt-2 grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
                 <div className="flex items-center">
                   <span className="w-2 h-2 rounded-full bg-yellow-400 mr-1"></span>
-                  <span className="text-midnight-300">Pending: </span>
-                  <span className="ml-1 font-semibold text-midnight-100">{dashboardData.orders_by_status.pending}</span>
+                  <span className="text-gray-300">Pending: </span>
+                  <span className="ml-1 font-semibold text-white">{dashboardData.orders_by_status.pending}</span>
                 </div>
                 <div className="flex items-center">
                   <span className="w-2 h-2 rounded-full bg-blue-400 mr-1"></span>
-                  <span className="text-midnight-300">Processing: </span>
-                  <span className="ml-1 font-semibold text-midnight-100">{dashboardData.orders_by_status.processing}</span>
+                  <span className="text-gray-300">Processing: </span>
+                  <span className="ml-1 font-semibold text-white">{dashboardData.orders_by_status.processing}</span>
                 </div>
                 <div className="flex items-center">
                   <span className="w-2 h-2 rounded-full bg-purple-400 mr-1"></span>
-                  <span className="text-midnight-300">Shipped: </span>
-                  <span className="ml-1 font-semibold text-midnight-100">{dashboardData.orders_by_status.shipped}</span>
+                  <span className="text-gray-300">Shipped: </span>
+                  <span className="ml-1 font-semibold text-white">{dashboardData.orders_by_status.shipped}</span>
                 </div>
                 <div className="flex items-center">
                   <span className="w-2 h-2 rounded-full bg-green-400 mr-1"></span>
-                  <span className="text-midnight-300">Delivered: </span>
-                  <span className="ml-1 font-semibold text-midnight-100">{dashboardData.orders_by_status.delivered}</span>
+                  <span className="text-gray-300">Delivered: </span>
+                  <span className="ml-1 font-semibold text-white">{dashboardData.orders_by_status.delivered}</span>
                 </div>
                 <div className="flex items-center">
                   <span className="w-2 h-2 rounded-full bg-red-400 mr-1"></span>
-                  <span className="text-midnight-300">Cancelled: </span>
-                  <span className="ml-1 font-semibold text-midnight-100">{dashboardData.orders_by_status.cancelled}</span>
+                  <span className="text-gray-300">Cancelled: </span>
+                  <span className="ml-1 font-semibold text-white">{dashboardData.orders_by_status.cancelled}</span>
                 </div>
               </div>
 
@@ -178,7 +178,7 @@ const Dashboard = () => {
                 {dashboardData.total_orders > 0 ? (
                   <>
                     <div className="flex items-center text-xs">
-                      <div className="w-16 text-midnight-300">Pending</div>
+                      <div className="w-16 text-gray-300">Pending</div>
                       <div className="flex-1 h-2 bg-midnight-700 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-yellow-400"
@@ -187,7 +187,7 @@ const Dashboard = () => {
                       </div>
                     </div>
                     <div className="flex items-center text-xs">
-                      <div className="w-16 text-midnight-300">Processing</div>
+                      <div className="w-16 text-gray-300">Processing</div>
                       <div className="flex-1 h-2 bg-midnight-700 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-blue-400"
@@ -253,8 +253,8 @@ const Dashboard = () => {
               </svg>
             </div>
             <div>
-              <p className="text-midnight-300 text-sm">Total Revenue</p>
-              <p className="text-2xl font-bold text-midnight-50">${parseFloat(dashboardData.total_revenue || 0).toFixed(2)}</p>
+              <p className="text-gray-300 text-sm">Total Revenue</p>
+              <p className="text-2xl font-bold text-white">${parseFloat(dashboardData.total_revenue || 0).toFixed(2)}</p>
             </div>
           </div>
         </div>
