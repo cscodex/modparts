@@ -550,67 +550,69 @@ const Users = () => {
             </div>
           </div>
 
-          <table className="w-full">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="p-4 w-10">
-                  <span className="sr-only">Select</span>
-                </th>
-                <th className="text-left p-4">Name</th>
-                <th className="text-left p-4">Email</th>
-                <th className="text-center p-4">Role</th>
-                <th className="text-center p-4">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentUsers.map(user => (
-                <tr key={user.id} className="border-t">
-                  <td className="p-4 text-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedUsers.includes(user.id)}
-                      onChange={(e) => handleSelectUser(user.id, e.target.checked)}
-                      className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                    />
-                  </td>
-                  <td className="p-4">
-                    <div>
-                      <p className="font-semibold">{user.first_name} {user.last_name}</p>
-                      <p className="text-sm text-gray-600">{user.phone || 'No phone'}</p>
-                    </div>
-                  </td>
-                  <td className="p-4">{user.email}</td>
-                  <td className="p-4 text-center">
-                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${
-                      user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
-                    }`}>
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="p-4 text-center">
-                    <div className="flex justify-center space-x-2">
-                      <button
-                        onClick={() => handleEditUser(user)}
-                        className="text-blue-600 hover:text-blue-800"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => handleDeleteUser(user.id)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                        </svg>
-                      </button>
-                    </div>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[700px]">
+              <thead className="bg-midnight-800">
+                <tr>
+                  <th className="p-4 w-10">
+                    <span className="sr-only">Select</span>
+                  </th>
+                  <th className="text-left p-4 text-white min-w-[200px]">Name</th>
+                  <th className="text-left p-4 text-white min-w-[200px]">Email</th>
+                  <th className="text-center p-4 text-white min-w-[100px]">Role</th>
+                  <th className="text-center p-4 text-white min-w-[120px]">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {currentUsers.map(user => (
+                  <tr key={user.id} className="border-t border-midnight-700">
+                    <td className="p-4 text-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedUsers.includes(user.id)}
+                        onChange={(e) => handleSelectUser(user.id, e.target.checked)}
+                        className="h-4 w-4 text-midnight-300 rounded border-midnight-600 bg-midnight-700 focus:ring-midnight-500"
+                      />
+                    </td>
+                    <td className="p-4">
+                      <div>
+                        <p className="font-semibold text-white">{user.first_name} {user.last_name}</p>
+                        <p className="text-sm text-gray-300">{user.phone || 'No phone'}</p>
+                      </div>
+                    </td>
+                    <td className="p-4 text-white">{user.email}</td>
+                    <td className="p-4 text-center">
+                      <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${
+                        user.role === 'admin' ? 'bg-purple-600 text-white' : 'bg-blue-600 text-white'
+                      }`}>
+                        {user.role}
+                      </span>
+                    </td>
+                    <td className="p-4 text-center">
+                      <div className="flex justify-center space-x-2">
+                        <button
+                          onClick={() => handleEditUser(user)}
+                          className="text-blue-400 hover:text-blue-300"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteUser(user.id)}
+                          className="text-red-400 hover:text-red-300"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           {/* Pagination */}
           <Pagination

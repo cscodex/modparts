@@ -410,20 +410,21 @@ const Orders = () => {
               </div>
             </div>
 
-            <table className="w-full">
-              <thead className="bg-midnight-800">
-                <tr>
-                  <th className="p-4 w-10">
-                    <span className="sr-only">Select</span>
-                  </th>
-                  <th className="text-left p-4 text-midnight-200">Order #</th>
-                  <th className="text-left p-4 text-midnight-200">Customer</th>
-                  <th className="text-left p-4 text-midnight-200">Date</th>
-                  <th className="text-center p-4 text-midnight-200">Status</th>
-                  <th className="text-right p-4 text-midnight-200">Total</th>
-                  <th className="text-center p-4 text-midnight-200">Actions</th>
-                </tr>
-              </thead>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[900px]">
+                <thead className="bg-midnight-800">
+                  <tr>
+                    <th className="p-4 w-10">
+                      <span className="sr-only">Select</span>
+                    </th>
+                    <th className="text-left p-4 text-white min-w-[100px]">Order #</th>
+                    <th className="text-left p-4 text-white min-w-[200px]">Customer</th>
+                    <th className="text-left p-4 text-white min-w-[120px]">Date</th>
+                    <th className="text-center p-4 text-white min-w-[120px]">Status</th>
+                    <th className="text-right p-4 text-white min-w-[100px]">Total</th>
+                    <th className="text-center p-4 text-white min-w-[150px]">Actions</th>
+                  </tr>
+                </thead>
               <tbody>
                 {currentOrders.map(order => (
                   <tr key={order.id} className="border-t border-midnight-700">
@@ -435,23 +436,23 @@ const Orders = () => {
                         className="h-4 w-4 text-midnight-300 rounded border-midnight-600 bg-midnight-700 focus:ring-midnight-500"
                       />
                     </td>
-                    <td className="p-4 font-semibold text-midnight-100">#{order.id}</td>
+                    <td className="p-4 font-semibold text-white">#{order.id}</td>
                     <td className="p-4">
                       <div>
-                        <p className="font-medium text-midnight-100">
+                        <p className="font-medium text-white">
                           {order.customer_name || 'Unknown Customer'}
                         </p>
-                        <p className="text-sm text-midnight-400">
+                        <p className="text-sm text-gray-300">
                           {order.email || 'No email provided'}
                         </p>
                         {order.customer_phone && (
-                          <p className="text-xs text-midnight-500">
+                          <p className="text-xs text-gray-400">
                             {order.customer_phone}
                           </p>
                         )}
                       </div>
                     </td>
-                    <td className="p-4 text-midnight-200">{new Date(order.created_at || Date.now()).toLocaleDateString()}</td>
+                    <td className="p-4 text-white">{new Date(order.created_at || Date.now()).toLocaleDateString()}</td>
                     <td className="p-4 text-center">
                       <select
                         className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(order.status && typeof order.status === 'string' ? order.status : 'pending')}`}
@@ -465,14 +466,14 @@ const Orders = () => {
                         <option value="cancelled">Cancelled</option>
                       </select>
                     </td>
-                    <td className="p-4 text-right font-semibold text-midnight-100">
+                    <td className="p-4 text-right font-semibold text-white">
                       ${parseFloat(order.total_amount || 0).toFixed(2)}
                     </td>
                     <td className="p-4 text-center">
                       <div className="flex flex-col space-y-2">
                         <Link
                           to={`/orders/${order.id}`}
-                          className="text-midnight-300 hover:text-midnight-100 hover:underline"
+                          className="text-blue-400 hover:text-blue-300 hover:underline"
                         >
                           View Details
                         </Link>
@@ -487,7 +488,8 @@ const Orders = () => {
                   </tr>
                 ))}
               </tbody>
-          </table>
+              </table>
+            </div>
 
           {/* Pagination */}
           <Pagination

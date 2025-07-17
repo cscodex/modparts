@@ -271,24 +271,24 @@ const Dashboard = () => {
               <p className="text-midnight-400">No recent orders</p>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full min-w-[500px]">
                   <thead>
                     <tr className="bg-midnight-800">
-                      <th className="text-left p-2 text-midnight-200">Order #</th>
-                      <th className="text-left p-2 text-midnight-200">Customer</th>
-                      <th className="text-left p-2 text-midnight-200">Status</th>
-                      <th className="text-right p-2 text-midnight-200">Amount</th>
+                      <th className="text-left p-2 text-white min-w-[100px]">Order #</th>
+                      <th className="text-left p-2 text-white min-w-[150px]">Customer</th>
+                      <th className="text-left p-2 text-white min-w-[120px]">Status</th>
+                      <th className="text-right p-2 text-white min-w-[100px]">Amount</th>
                     </tr>
                   </thead>
                   <tbody>
                     {dashboardData.recent_orders.map(order => (
                       <tr key={order.id} className="border-t border-midnight-700">
                         <td className="p-2">
-                          <Link to={`/admin/orders/${order.id}`} className="text-midnight-300 hover:text-midnight-100 hover:underline">
+                          <Link to={`/admin/orders/${order.id}`} className="text-blue-400 hover:text-blue-300 hover:underline">
                             #{order.id}
                           </Link>
                         </td>
-                        <td className="p-2 text-midnight-200">{order.first_name} {order.last_name}</td>
+                        <td className="p-2 text-white">{order.first_name} {order.last_name}</td>
                         <td className="p-2">
                           <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${
                             !order.status || typeof order.status !== 'string' ? 'bg-midnight-600 text-midnight-200' :
@@ -303,7 +303,7 @@ const Dashboard = () => {
                               : 'Pending'}
                           </span>
                         </td>
-                        <td className="p-2 text-right text-midnight-200">${parseFloat(order.total_amount || 0).toFixed(2)}</td>
+                        <td className="p-2 text-right text-white">${parseFloat(order.total_amount || 0).toFixed(2)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -328,19 +328,19 @@ const Dashboard = () => {
               <p className="text-midnight-400">No low stock products</p>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full min-w-[400px]">
                   <thead>
                     <tr className="bg-midnight-800">
-                      <th className="text-left p-2 text-midnight-200">Product</th>
-                      <th className="text-right p-2 text-midnight-200">Stock</th>
-                      <th className="text-center p-2 text-midnight-200">Action</th>
+                      <th className="text-left p-2 text-white min-w-[200px]">Product</th>
+                      <th className="text-right p-2 text-white min-w-[80px]">Stock</th>
+                      <th className="text-center p-2 text-white min-w-[120px]">Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {dashboardData.low_stock.map(product => (
                       <tr key={product.id} className="border-t border-midnight-700">
                         <td className="p-2">
-                          <Link to={`/admin/products/edit/${product.id}`} className="text-midnight-300 hover:text-midnight-100 hover:underline">
+                          <Link to={`/admin/products/edit/${product.id}`} className="text-blue-400 hover:text-blue-300 hover:underline">
                             {product.name}
                           </Link>
                         </td>
@@ -352,7 +352,7 @@ const Dashboard = () => {
                         <td className="p-2 text-center">
                           <Link
                             to={`/admin/products/edit/${product.id}`}
-                            className="text-midnight-300 hover:text-midnight-100 hover:underline"
+                            className="text-blue-400 hover:text-blue-300 hover:underline"
                           >
                             Update Stock
                           </Link>

@@ -595,20 +595,21 @@ const Products = () => {
               </div>
           </div>
 
-            <table className="w-full">
-              <thead className="bg-midnight-800">
-                <tr>
-                  <th className="p-4 w-10">
-                    <span className="sr-only">Select</span>
-                  </th>
-                  <th className="text-left p-4 text-midnight-200">Product</th>
-                  <th className="text-left p-4 text-midnight-200">Category</th>
-                  <th className="text-center p-4 text-midnight-200">Price</th>
-                  <th className="text-center p-4 text-midnight-200">Stock</th>
-                  <th className="text-center p-4 text-midnight-200">Condition</th>
-                  <th className="text-center p-4 text-midnight-200">Actions</th>
-                </tr>
-              </thead>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[800px]">
+                <thead className="bg-midnight-800">
+                  <tr>
+                    <th className="p-4 w-10">
+                      <span className="sr-only">Select</span>
+                    </th>
+                    <th className="text-left p-4 text-white min-w-[200px]">Product</th>
+                    <th className="text-left p-4 text-white min-w-[120px]">Category</th>
+                    <th className="text-center p-4 text-white min-w-[80px]">Price</th>
+                    <th className="text-center p-4 text-white min-w-[80px]">Stock</th>
+                    <th className="text-center p-4 text-white min-w-[100px]">Condition</th>
+                    <th className="text-center p-4 text-white min-w-[120px]">Actions</th>
+                  </tr>
+                </thead>
               <tbody>
                 {currentProducts.map(product => (
                   <tr key={product.id} className="border-t border-midnight-700">
@@ -632,16 +633,16 @@ const Products = () => {
                           />
                         </div>
                         <div>
-                          <p className="font-semibold text-midnight-100">{product.name}</p>
-                          <p className="text-sm text-midnight-400 truncate max-w-xs">
+                          <p className="font-semibold text-white">{product.name}</p>
+                          <p className="text-sm text-gray-300 truncate max-w-xs">
                             {product.description.substring(0, 50)}
                             {product.description.length > 50 ? '...' : ''}
                           </p>
                         </div>
                       </div>
                     </td>
-                    <td className="p-4 text-midnight-200">{product.category_name}</td>
-                    <td className="p-4 text-center text-midnight-200">${parseFloat(product.price).toFixed(2)}</td>
+                    <td className="p-4 text-white">{product.category_name}</td>
+                    <td className="p-4 text-center text-white">${parseFloat(product.price).toFixed(2)}</td>
                     <td className="p-4 text-center">
                       <span className={`font-semibold ${product.quantity <= 0 ? 'text-red-400' : product.quantity <= 5 ? 'text-yellow-400' : 'text-green-400'}`}>
                         {product.quantity}
@@ -687,7 +688,8 @@ const Products = () => {
                   </tr>
                 ))}
               </tbody>
-            </table>
+              </table>
+            </div>
 
             {/* Pagination */}
             <Pagination
