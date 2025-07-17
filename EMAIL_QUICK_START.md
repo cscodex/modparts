@@ -18,7 +18,7 @@ Since you're using `sardaarjiautoparts.onrender.com`, here are immediate solutio
 In your Supabase Dashboard → Project Settings → Edge Functions:
 ```bash
 EMAIL_PROVIDER=resend
-RESEND_API_KEY=re_your_api_key_here
+RESEND_API_KEY=re_your_api_kre_6S72V7sU_HTjr6dzg1D6SvN8fSRYkLaKvey_here
 FROM_EMAIL=onboarding@resend.dev
 ```
 
