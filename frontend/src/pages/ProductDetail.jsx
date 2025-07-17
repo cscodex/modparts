@@ -18,6 +18,8 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [buyingNow, setBuyingNow] = useState(false);
 
   // Handle cart errors
   useEffect(() => {
@@ -51,6 +53,9 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = async () => {
+    if (addingToCart) return; // Prevent double-clicks
+
+    setAddingToCart(true);
     try {
       await addToCart(product, quantity);
       success(`${quantity} ${product.name} added to cart!`);
@@ -59,10 +64,15 @@ const ProductDetail = () => {
       const errorMessage = cartError || error.message || 'Failed to add item to cart';
       showError(errorMessage);
       console.error('Failed to add to cart:', error);
+    } finally {
+      setAddingToCart(false);
     }
   };
 
   const handleBuyNow = async () => {
+    if (buyingNow) return; // Prevent double-clicks
+
+    setBuyingNow(true);
     try {
       await addToCart(product, quantity);
       navigate('/cart');
@@ -71,6 +81,8 @@ const ProductDetail = () => {
       const errorMessage = cartError || error.message || 'Failed to add item to cart';
       showError(errorMessage);
       console.error('Failed to add to cart for buy now:', error);
+    } finally {
+      setBuyingNow(false);
     }
   };
 
@@ -183,13 +195,36 @@ const ProductDetail = () => {
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
               <button
                 onClick={handleAddToCart}
-                className="flex items-center justify-center bg-blue-800 text-white px-6 py-3 rounded font-semibold hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
-                disabled={product.quantity <= 0}
+                className={`flex items-center justify-center px-6 py-3 rounded font-semibold transition-colors ${
+                  product.quantity <= 0 || addingToCart
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-blue-800 text-white hover:bg-blue-700'
+                }`}
+                disabled={product.quantity <= 0 || addingToCart}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                Add to Cart
+                {addingToCart ? (
+                  <>
+                    {/* Gear spinning animation */}
+                    <svg
+                      className="animate-spin h-5 w-5 mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        fill="currentColor"
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"
+                      />
+                    </svg>
+                    Adding...
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    Add to Cart
+                  </>
+                )}
               </button>
 
               {/* Wishlist Button */}
@@ -201,13 +236,36 @@ const ProductDetail = () => {
               />
               <button
                 onClick={handleBuyNow}
-                className="flex items-center justify-center bg-green-600 text-white px-6 py-3 rounded font-semibold hover:bg-green-700 disabled:bg-gray-400 transition-colors"
-                disabled={product.quantity <= 0}
+                className={`flex items-center justify-center px-6 py-3 rounded font-semibold transition-colors ${
+                  product.quantity <= 0 || buyingNow
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-green-600 text-white hover:bg-green-700'
+                }`}
+                disabled={product.quantity <= 0 || buyingNow}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                Buy Now
+                {buyingNow ? (
+                  <>
+                    {/* Gear spinning animation */}
+                    <svg
+                      className="animate-spin h-5 w-5 mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        fill="currentColor"
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"
+                      />
+                    </svg>
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    Buy Now
+                  </>
+                )}
               </button>
             </div>
           </div>
