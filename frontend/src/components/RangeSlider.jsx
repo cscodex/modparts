@@ -16,21 +16,9 @@ const RangeSlider = ({ min, max, minValue, maxValue, onChange, onAfterChange }) 
   const sliderRef = useRef(null);
   const range = max - min;
 
-  // Calculate positions for the handles
+  // Calculate positions for the handles (linear scale)
   const getLeftPosition = (value) => {
-    // Use logarithmic scale for better usability with large ranges
-    if (range > 1000) {
-      // For large ranges like 0-99999, use logarithmic scale for better usability
-      const logMin = min === 0 ? 0 : Math.log(min);
-      const logMax = Math.log(max);
-      const logValue = value === 0 ? 0 : Math.log(value);
-      const logRange = logMax - logMin;
-
-      return ((logValue - logMin) / logRange) * 100;
-    } else {
-      // For smaller ranges, use linear scale
-      return ((value - min) / range) * 100;
-    }
+    return ((value - min) / range) * 100;
   };
 
   const minPos = getLeftPosition(minValue);
@@ -65,26 +53,11 @@ const RangeSlider = ({ min, max, minValue, maxValue, onChange, onAfterChange }) 
     const position = clientX - rect.left;
     const percentage = Math.min(Math.max(position / sliderWidth, 0), 1);
 
-    // Calculate value based on linear or logarithmic scale
-    let value;
-    if (range > 1000) {
-      // For large ranges, use logarithmic scale
-      const logMin = min === 0 ? 0 : Math.log(min);
-      const logMax = Math.log(max);
-      const logRange = logMax - logMin;
+    // Calculate value based on linear scale (simplified for better UX)
+    let value = Math.round(percentage * range + min);
 
-      // Convert percentage to logarithmic value
-      const logValue = percentage * logRange + logMin;
-      value = Math.round(Math.exp(logValue));
-
-      // Handle special case for min=0
-      if (percentage < 0.01 && min === 0) {
-        value = 0;
-      }
-    } else {
-      // For smaller ranges, use linear scale
-      value = Math.round(percentage * range + min);
-    }
+    // Ensure value is within bounds
+    value = Math.max(min, Math.min(max, value));
 
     if (isDragging === 'min') {
       // Ensure min doesn't exceed max - 1

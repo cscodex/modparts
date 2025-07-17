@@ -5,6 +5,7 @@ import { getCategories } from '../../api/categories';
 import { useToast } from '../../context/ToastContext';
 import { processImageUrl, handleImageError } from '../../utils/imageHelper';
 import { InlineLoader } from '../../components/ui/LoadingSpinner';
+import PlaceholderImage from '../../components/ui/PlaceholderImage';
 
 const ProductForm = () => {
   const { id } = useParams();
@@ -478,12 +479,12 @@ const ProductForm = () => {
                 {imagePreview ? (
                   <div className="border-2 border-green-300 rounded-lg p-4 bg-green-50">
                     <p className="text-sm font-semibold mb-2 text-green-800">🖼️ Image Preview:</p>
-                    <div className="w-full h-48 bg-white border rounded flex items-center justify-center overflow-hidden">
-                      <img
+                    <div className="w-full h-48 bg-white border rounded overflow-hidden">
+                      <PlaceholderImage
                         src={processImageUrl(imagePreview)}
                         alt="Product preview"
                         className="object-contain w-full h-full"
-                        onError={(e) => handleImageError(e)}
+                        placeholderText="Image Loading..."
                       />
                     </div>
                     <p className="text-xs text-green-600 mt-2">

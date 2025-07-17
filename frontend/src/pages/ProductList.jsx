@@ -351,17 +351,31 @@ const ProductList = () => {
                 <div className="mt-2">
                   <div className="flex justify-between mb-2">
                     <span className="text-sm font-medium">${currentPriceRange.min}</span>
-                    <span className="text-sm font-medium">${currentPriceRange.max === 99999 ? 'Any' : currentPriceRange.max}</span>
+                    <span className="text-sm font-medium">${currentPriceRange.max === 99999 ? '99999+' : currentPriceRange.max}</span>
                   </div>
 
                   {/* Custom Range Slider with two handles */}
                   <RangeSlider
                     min={0}
-                    max={99999}
-                    minValue={currentPriceRange.min}
-                    maxValue={currentPriceRange.max}
-                    onChange={handlePriceRangeChange}
-                    onAfterChange={handlePriceRangeApply}
+                    max={1000}
+                    minValue={Math.min(currentPriceRange.min, 1000)}
+                    maxValue={Math.min(currentPriceRange.max, 1000)}
+                    onChange={(values) => {
+                      // Scale values back to full range if needed
+                      const scaledValues = {
+                        min: values.min,
+                        max: values.max === 1000 ? 99999 : values.max
+                      };
+                      handlePriceRangeChange(scaledValues);
+                    }}
+                    onAfterChange={(values) => {
+                      // Scale values back to full range if needed
+                      const scaledValues = {
+                        min: values.min,
+                        max: values.max === 1000 ? 99999 : values.max
+                      };
+                      handlePriceRangeApply(scaledValues);
+                    }}
                   />
 
                   <div className="flex space-x-2 mt-4">
@@ -538,6 +552,7 @@ const ProductList = () => {
                         setCurrentPriceRange(defaultRange);
                       }}
                       className="ml-1 text-green-800 hover:text-green-900"
+                      title="Clear price filter"
                     >
                       ×
                     </button>

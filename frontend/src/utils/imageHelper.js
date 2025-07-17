@@ -52,6 +52,12 @@ export const processImageUrl = (imageUrl, fallbackUrl = null) => {
     return imageUrl;
   }
 
+  // If it's any other external URL (http/https), return as-is
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    console.log('Using external URL as-is:', imageUrl);
+    return imageUrl;
+  }
+
   // If it's already a valid URL, return it as is
   if (isValidUrl(imageUrl)) {
     // Check if the URL is from the old domain and needs to be updated
