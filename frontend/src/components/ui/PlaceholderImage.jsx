@@ -21,10 +21,12 @@ const PlaceholderImage = ({
     setImageError(false);
   };
 
-  // If no src provided or image failed to load, show placeholder
-  if (!src || imageError) {
+  // If no src provided, invalid src, or image failed to load, show placeholder
+  const isInvalidSrc = !src || src === 'nan' || src === 'undefined' || src === 'null' || src.includes('/nan');
+
+  if (isInvalidSrc || imageError) {
     return (
-      <div 
+      <div
         className={`flex flex-col items-center justify-center bg-gray-100 text-gray-500 ${className}`}
         {...props}
       >

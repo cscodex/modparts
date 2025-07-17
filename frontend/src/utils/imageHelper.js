@@ -38,8 +38,8 @@ export const isSupabaseStorageUrl = (url) => {
  * @returns {string} - The processed image URL
  */
 export const processImageUrl = (imageUrl, fallbackUrl = null) => {
-  // If no image URL is provided, return null to trigger placeholder
-  if (!imageUrl || imageUrl.trim() === '') {
+  // If no image URL is provided or it's "nan", return null to trigger placeholder
+  if (!imageUrl || imageUrl.trim() === '' || imageUrl === 'nan' || imageUrl === 'undefined' || imageUrl === 'null') {
     return null;
   }
 
