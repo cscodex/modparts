@@ -35,7 +35,11 @@ const CheckoutWithStripe = () => {
       if (!user) return;
 
       try {
-        const profileData = await getUserProfile();
+        const profileResponse = await getUserProfile();
+        const profileData = profileResponse.data || profileResponse;
+
+        console.log('🔍 CheckoutWithStripe: Profile data for pre-population:', profileData);
+
         setFormData(prevData => ({
           ...prevData,
           firstName: profileData.first_name || user.first_name || '',
@@ -47,6 +51,8 @@ const CheckoutWithStripe = () => {
           zipCode: profileData.zip_code || user.zip_code || '',
           phone: profileData.phone || user.phone || ''
         }));
+
+        console.log('✅ CheckoutWithStripe: Form data updated with profile data');
       } catch (err) {
         console.error('Error fetching user profile:', err);
       }

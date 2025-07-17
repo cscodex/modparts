@@ -11,10 +11,13 @@ const Profile = () => {
   const { success, error: showError } = useToast();
 
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [ordersLoading, setOrdersLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [sameAsShipping, setSameAsShipping] = useState(true);
+  const [sameAsBilling, setSameAsBilling] = useState(true);
 
   const [formData, setFormData] = useState({
     first_name: '',
@@ -40,40 +43,51 @@ const Profile = () => {
   // Fetch user profile data from server
   useEffect(() => {
     const fetchUserProfile = async () => {
-      if (!isAuthenticated()) return;
+      if (!isAuthenticated()) {
+        setProfileLoading(false);
+        return;
+      }
 
       try {
-        setLoading(true);
+        setProfileLoading(true);
+        console.log('🔍 Profile: Fetching user profile data...');
+
         const profileData = await getUserProfile();
-        console.log('Fetched profile data:', profileData);
+        console.log('✅ Profile: Fetched profile data:', profileData);
+
+        // Extract the actual user data from the response
+        const userData = profileData.data || profileData;
 
         // Update form data with fetched profile
         setFormData({
-          first_name: profileData.first_name || '',
-          last_name: profileData.last_name || '',
-          email: profileData.email || '',
-          phone: profileData.phone || '',
-          address: profileData.address || '',
-          city: profileData.city || '',
-          state: profileData.state || '',
-          zip_code: profileData.zip_code || '',
-          shipping_address: profileData.shipping_address || '',
-          shipping_city: profileData.shipping_city || '',
-          shipping_state: profileData.shipping_state || '',
-          shipping_zip_code: profileData.shipping_zip_code || '',
-          billing_address: profileData.billing_address || '',
-          billing_city: profileData.billing_city || '',
-          billing_state: profileData.billing_state || '',
-          billing_zip_code: profileData.billing_zip_code || '',
-          preferred_address: profileData.preferred_address || 'shipping',
-          preferred_payment_method: profileData.preferred_payment_method || 'credit_card'
+          first_name: userData.first_name || '',
+          last_name: userData.last_name || '',
+          email: userData.email || '',
+          phone: userData.phone || '',
+          address: userData.address || '',
+          city: userData.city || '',
+          state: userData.state || '',
+          zip_code: userData.zip_code || '',
+          shipping_address: userData.shipping_address || '',
+          shipping_city: userData.shipping_city || '',
+          shipping_state: userData.shipping_state || '',
+          shipping_zip_code: userData.shipping_zip_code || '',
+          billing_address: userData.billing_address || '',
+          billing_city: userData.billing_city || '',
+          billing_state: userData.billing_state || '',
+          billing_zip_code: userData.billing_zip_code || '',
+          preferred_address: userData.preferred_address || 'shipping',
+          preferred_payment_method: userData.preferred_payment_method || 'credit_card'
         });
+
+        console.log('✅ Profile: Form data updated with profile data');
       } catch (err) {
-        console.error('Error fetching profile:', err);
+        console.error('❌ Profile: Error fetching profile:', err);
         showError('Failed to load profile data');
 
         // Fall back to using data from context if API call fails
         if (user) {
+          console.log('🔄 Profile: Falling back to user context data');
           setFormData({
             first_name: user.first_name || '',
             last_name: user.last_name || '',
@@ -96,20 +110,24 @@ const Profile = () => {
           });
         }
       } finally {
-        setLoading(false);
+        setProfileLoading(false);
       }
     };
 
     fetchUserProfile();
-  }, [isAuthenticated, user, showError]);
+  }, [isAuthenticated, showError]); // Removed 'user' dependency to prevent infinite loops
 
   // Fetch recent orders
   useEffect(() => {
     const loadOrders = async () => {
-      if (!isAuthenticated()) return;
+      if (!isAuthenticated()) {
+        setOrdersLoading(false);
+        return;
+      }
 
-      setLoading(true);
+      setOrdersLoading(true);
       try {
+        console.log('🔍 Profile: Fetching recent orders...');
         const data = await fetchMyOrders();
         // Sort by date (newest first) and take only the 5 most recent
         const sortedOrders = data.sort((a, b) =>
@@ -117,11 +135,12 @@ const Profile = () => {
         ).slice(0, 5);
 
         setOrders(sortedOrders);
+        console.log('✅ Profile: Recent orders loaded:', sortedOrders.length);
       } catch (err) {
-        console.error('Error loading orders:', err);
+        console.error('❌ Profile: Error loading orders:', err);
         setError('Failed to load recent orders');
       } finally {
-        setLoading(false);
+        setOrdersLoading(false);
       }
     };
 
@@ -214,7 +233,7 @@ const Profile = () => {
           <div className="bg-white rounded-lg shadow p-6 mb-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Personal Information</h2>
-              {!editMode && (
+              {!editMode && !profileLoading && (
                 <button
                   onClick={() => setEditMode(true)}
                   className="bg-blue-800 text-white px-4 py-2 rounded hover:bg-blue-700"
@@ -224,7 +243,11 @@ const Profile = () => {
               )}
             </div>
 
-            {editMode ? (
+            {profileLoading ? (
+              <div className="text-center py-8">
+                <LoadingSpinner size="lg" text="Loading profile..." variant="gear" />
+              </div>
+            ) : editMode ? (
               <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
@@ -234,9 +257,11 @@ const Profile = () => {
                       name="first_name"
                       value={formData.first_name}
                       onChange={handleChange}
-                      className="w-full p-2 border rounded"
-                      required
+                      className="w-full p-2 border rounded bg-gray-100 cursor-not-allowed"
+                      readOnly
+                      title="Name cannot be changed"
                     />
+                    <p className="text-xs text-gray-500 mt-1">Name cannot be changed</p>
                   </div>
                   <div>
                     <label className="block text-gray-700 mb-2">Last Name</label>
@@ -245,9 +270,11 @@ const Profile = () => {
                       name="last_name"
                       value={formData.last_name}
                       onChange={handleChange}
-                      className="w-full p-2 border rounded"
-                      required
+                      className="w-full p-2 border rounded bg-gray-100 cursor-not-allowed"
+                      readOnly
+                      title="Name cannot be changed"
                     />
+                    <p className="text-xs text-gray-500 mt-1">Name cannot be changed</p>
                   </div>
                 </div>
 
@@ -258,11 +285,11 @@ const Profile = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full p-2 border rounded"
-                    required
+                    className="w-full p-2 border rounded bg-gray-100 cursor-not-allowed"
                     readOnly
+                    title="Email cannot be changed"
                   />
-                  <p className="text-sm text-gray-500 mt-1">Email cannot be changed</p>
+                  <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
                 </div>
 
                 <div className="mb-4">
@@ -329,9 +356,12 @@ const Profile = () => {
                     <input
                       type="checkbox"
                       id="same-as-primary-shipping"
-                      checked={!formData.shipping_address}
+                      checked={sameAsShipping}
                       onChange={(e) => {
-                        if (e.target.checked) {
+                        const isChecked = e.target.checked;
+                        setSameAsShipping(isChecked);
+
+                        if (isChecked) {
                           // Use primary address for shipping
                           setFormData(prev => ({
                             ...prev,
@@ -344,10 +374,10 @@ const Profile = () => {
                           // Initialize with primary address
                           setFormData(prev => ({
                             ...prev,
-                            shipping_address: prev.address,
-                            shipping_city: prev.city,
-                            shipping_state: prev.state,
-                            shipping_zip_code: prev.zip_code
+                            shipping_address: prev.address || '',
+                            shipping_city: prev.city || '',
+                            shipping_state: prev.state || '',
+                            shipping_zip_code: prev.zip_code || ''
                           }));
                         }
                       }}
@@ -358,7 +388,7 @@ const Profile = () => {
                     </label>
                   </div>
 
-                  {!formData.shipping_address ? (
+                  {sameAsShipping ? (
                     <p className="text-sm text-gray-600 italic">Using primary address for shipping</p>
                   ) : (
                     <>
@@ -416,9 +446,12 @@ const Profile = () => {
                     <input
                       type="checkbox"
                       id="same-as-primary-billing"
-                      checked={!formData.billing_address}
+                      checked={sameAsBilling}
                       onChange={(e) => {
-                        if (e.target.checked) {
+                        const isChecked = e.target.checked;
+                        setSameAsBilling(isChecked);
+
+                        if (isChecked) {
                           // Use primary address for billing
                           setFormData(prev => ({
                             ...prev,
@@ -431,10 +464,10 @@ const Profile = () => {
                           // Initialize with primary address
                           setFormData(prev => ({
                             ...prev,
-                            billing_address: prev.address,
-                            billing_city: prev.city,
-                            billing_state: prev.state,
-                            billing_zip_code: prev.zip_code
+                            billing_address: prev.address || '',
+                            billing_city: prev.city || '',
+                            billing_state: prev.state || '',
+                            billing_zip_code: prev.zip_code || ''
                           }));
                         }
                       }}
@@ -445,7 +478,7 @@ const Profile = () => {
                     </label>
                   </div>
 
-                  {!formData.billing_address ? (
+                  {sameAsBilling ? (
                     <p className="text-sm text-gray-600 italic">Using primary address for billing</p>
                   ) : (
                     <>
@@ -638,7 +671,7 @@ const Profile = () => {
               </Link>
             </div>
 
-            {loading ? (
+            {ordersLoading ? (
               <div className="text-center py-4">
                 <LoadingSpinner size="md" text="Loading orders..." variant="gear" />
               </div>
