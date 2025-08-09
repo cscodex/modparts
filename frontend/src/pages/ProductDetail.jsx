@@ -7,6 +7,8 @@ import { processImageUrl, handleImageError } from '../utils/imageHelper';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import WishlistButton from '../components/ui/WishlistButton';
 import PlaceholderImage from '../components/ui/PlaceholderImage';
+import ProductReviews from '../components/product/ProductReviews';
+import { RatingDisplay } from '../components/ui/StarRating';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -141,6 +143,13 @@ const ProductDetail = () => {
           <div className="md:w-1/2 p-6">
             <div className="mb-4">
               <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
+              <div className="mb-2">
+                <RatingDisplay
+                  rating={4.5}
+                  reviewCount={0}
+                  size="md"
+                />
+              </div>
               <p className="text-gray-600">Category: {product.category_name}</p>
             </div>
 
@@ -264,6 +273,14 @@ const ProductDetail = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Product Reviews Section */}
+      <div className="mt-12">
+        <ProductReviews
+          productId={product.id}
+          productName={product.name}
+        />
       </div>
     </div>
   );
