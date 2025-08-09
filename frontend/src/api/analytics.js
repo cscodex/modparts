@@ -1,7 +1,7 @@
 // Financial Analytics API Service
 // Frontend service for fetching financial reporting data
 
-import { API_BASE_URL } from './config';
+import { API_URL } from './config';
 
 // Get authentication token
 const getAuthToken = () => {
@@ -22,7 +22,7 @@ const apiRequest = async (endpoint, options = {}) => {
   };
 
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+    const response = await fetch(`${API_URL}${endpoint}`, config);
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
