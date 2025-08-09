@@ -27,6 +27,7 @@ import AdminOrders from './pages/admin/Orders'
 import AdminUsers from './pages/admin/Users'
 import UserApproval from './pages/admin/UserApproval'
 import AdminProductForm from './pages/admin/ProductForm'
+import AdminAnalytics from './pages/admin/Analytics'
 import LoadingDemo from './pages/LoadingDemo'
 import Wishlist from './pages/Wishlist'
 import NotFound from './pages/NotFound'
@@ -108,6 +109,7 @@ function App() {
                   <Route path="orders" element={<AdminOrders />} />
                   <Route path="users" element={<AdminUsers />} />
                   <Route path="user-approval" element={<UserApproval />} />
+                  <Route path="analytics" element={<AdminAnalytics />} />
                 </Route>
 
 
