@@ -241,8 +241,18 @@ async function getOrderAnalytics(res, startDate, endDate) {
 // Product Performance Analytics
 async function getProductAnalytics(res, startDate, endDate) {
   try {
+    console.log(`🛍️ Fetching product analytics from ${startDate} to ${endDate}`)
+
+    // First, let's check if we have any order_items at all
+    const { data: orderItemsCheck, error: checkError } = await supabase
+      .from('order_items')
+      .select('id')
+      .limit(1)
+
+    console.log('Order items check:', { orderItemsCheck, checkError })
+
     // Get order items with product details for the period
-    const { data: orderItemsData } = await supabase
+    const { data: orderItemsData, error: orderItemsError } = await supabase
       .from('order_items')
       .select(`
         quantity,
@@ -263,15 +273,150 @@ async function getProductAnalytics(res, startDate, endDate) {
       .gte('orders.created_at', startDate)
       .lte('orders.created_at', endDate)
 
+    console.log('Order items data:', { orderItemsData, orderItemsError, count: orderItemsData?.length })
+
+    if (orderItemsError) {
+      console.error('Error fetching order items:', orderItemsError)
+      // If there's an error, try a simpler query
+      return await getProductAnalyticsSimple(res, startDate, endDate)
+    }
+
     const productPerformance = {}
-    orderItemsData?.forEach(item => {
+
+    if (orderItemsData && orderItemsData.length > 0) {
+      orderItemsData.forEach(item => {
+        const productId = item.product_id
+        if (!productId || !item.products) {
+          console.log('Skipping item - missing product data:', item)
+          return
+        }
+
+        if (!productPerformance[productId]) {
+          productPerformance[productId] = {
+            name: item.products.name || 'Unknown Product',
+            category: item.products.categories?.name || 'Uncategorized',
+            totalQuantity: 0,
+            totalRevenue: 0,
+            orderCount: 0
+          }
+        }
+
+        productPerformance[productId].totalQuantity += item.quantity || 0
+        productPerformance[productId].totalRevenue += (item.quantity || 0) * (parseFloat(item.price) || 0)
+        productPerformance[productId].orderCount += 1
+      })
+    }
+
+    // Sort by revenue and get top 10
+    const topProducts = Object.entries(productPerformance)
+      .map(([id, data]) => ({ id, ...data }))
+      .sort((a, b) => b.totalRevenue - a.totalRevenue)
+      .slice(0, 10)
+
+    console.log('Final product performance:', {
+      totalProducts: Object.keys(productPerformance).length,
+      topProductsCount: topProducts.length
+    })
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        topProducts,
+        totalProductsSold: Object.keys(productPerformance).length
+      }
+    })
+
+  } catch (error) {
+    console.error('Error in getProductAnalytics:', error)
+    // Return empty data instead of throwing error
+    return res.status(200).json({
+      success: true,
+      data: {
+        topProducts: [],
+        totalProductsSold: 0
+      }
+    })
+  }
+}
+
+// Simplified Product Analytics (fallback)
+async function getProductAnalyticsSimple(res, startDate, endDate) {
+  try {
+    console.log('🔄 Using simplified product analytics query')
+
+    // Get all products first
+    const { data: products, error: productsError } = await supabase
+      .from('products')
+      .select(`
+        id,
+        name,
+        category_id,
+        categories (
+          name
+        )
+      `)
+
+    if (productsError) {
+      console.error('Error fetching products:', productsError)
+      return res.status(200).json({
+        success: true,
+        data: {
+          topProducts: [],
+          totalProductsSold: 0
+        }
+      })
+    }
+
+    // Get orders in the date range
+    const { data: orders, error: ordersError } = await supabase
+      .from('orders')
+      .select('id')
+      .gte('created_at', startDate)
+      .lte('created_at', endDate)
+
+    if (ordersError || !orders || orders.length === 0) {
+      console.log('No orders found in date range')
+      return res.status(200).json({
+        success: true,
+        data: {
+          topProducts: [],
+          totalProductsSold: 0
+        }
+      })
+    }
+
+    const orderIds = orders.map(order => order.id)
+
+    // Get order items for these orders
+    const { data: orderItems, error: orderItemsError } = await supabase
+      .from('order_items')
+      .select('product_id, quantity, price')
+      .in('order_id', orderIds)
+
+    if (orderItemsError || !orderItems || orderItems.length === 0) {
+      console.log('No order items found')
+      return res.status(200).json({
+        success: true,
+        data: {
+          topProducts: [],
+          totalProductsSold: 0
+        }
+      })
+    }
+
+    // Build product performance map
+    const productPerformance = {}
+
+    orderItems.forEach(item => {
       const productId = item.product_id
-      if (!productId || !item.products) return
+      const product = products.find(p => p.id === productId)
+
+      if (!product) return
 
       if (!productPerformance[productId]) {
         productPerformance[productId] = {
-          name: item.products.name,
-          category: item.products.categories?.name || 'Uncategorized',
+          name: product.name || 'Unknown Product',
+          category: product.categories?.name || 'Uncategorized',
           totalQuantity: 0,
           totalRevenue: 0,
           orderCount: 0
@@ -298,8 +443,14 @@ async function getProductAnalytics(res, startDate, endDate) {
     })
 
   } catch (error) {
-    console.error('Error in getProductAnalytics:', error)
-    throw error
+    console.error('Error in getProductAnalyticsSimple:', error)
+    return res.status(200).json({
+      success: true,
+      data: {
+        topProducts: [],
+        totalProductsSold: 0
+      }
+    })
   }
 }
 

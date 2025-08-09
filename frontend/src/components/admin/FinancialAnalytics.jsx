@@ -361,7 +361,44 @@ const OrdersTab = ({ data }) => {
 
 // Products Tab Component
 const ProductsTab = ({ data }) => {
-  if (!data.topProducts) return <div className="text-gray-400">No product data available</div>;
+  console.log('ProductsTab data:', data);
+
+  if (!data) {
+    return <div className="text-gray-400">Loading product data...</div>;
+  }
+
+  if (!data.topProducts) {
+    return (
+      <div className="space-y-4">
+        <div className="bg-midnight-900 border border-midnight-700 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-white mb-4">Product Analytics</h3>
+          <div className="text-gray-400 text-center py-8">
+            <p>No product sales data available for the selected period.</p>
+            <p className="text-sm mt-2">This could mean:</p>
+            <ul className="text-sm mt-2 space-y-1">
+              <li>• No orders have been placed yet</li>
+              <li>• No order items exist in the database</li>
+              <li>• The selected date range has no sales</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (data.topProducts.length === 0) {
+    return (
+      <div className="space-y-4">
+        <div className="bg-midnight-900 border border-midnight-700 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-white mb-4">Top Selling Products</h3>
+          <div className="text-gray-400 text-center py-8">
+            <p>No products sold in the selected time period.</p>
+            <p className="text-sm mt-2">Try selecting a longer date range or check if orders contain product items.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
