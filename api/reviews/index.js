@@ -234,12 +234,18 @@ async function createReview(req, res, body) {
     }
     
     // Check if user has already reviewed this product
-    const { data: existingReview } = await supabase
+    console.log('🔍 Checking for existing review...')
+    const { data: existingReview, error: checkError } = await supabase
       .from('product_reviews')
       .select('id')
       .eq('user_id', user.id)
       .eq('product_id', product_id)
       .single()
+
+    if (checkError && checkError.code !== 'PGRST116') {
+      console.log('❌ Error checking existing review:', checkError)
+      throw new Error(`Database error: ${checkError.message}`)
+    }
     
     if (existingReview) {
       return res.status(400).json({ 
@@ -249,15 +255,37 @@ async function createReview(req, res, body) {
     }
     
     // Check if user has purchased this product
-    const { data: isVerified, error: verifyError } = await supabase
-      .rpc('check_verified_purchase', { 
-        user_id_param: user.id, 
-        product_id_param: parseInt(product_id) 
-      })
-    
-    const isVerifiedPurchase = !verifyError && isVerified
+    console.log('🔍 Checking verified purchase...')
+    let isVerifiedPurchase = false
+    try {
+      const { data: isVerified, error: verifyError } = await supabase
+        .rpc('check_verified_purchase', {
+          user_id_param: user.id,
+          product_id_param: parseInt(product_id)
+        })
+
+      if (verifyError) {
+        console.log('⚠️ Verified purchase check failed:', verifyError.message)
+        // Continue without verified purchase status
+      } else {
+        isVerifiedPurchase = isVerified || false
+      }
+    } catch (err) {
+      console.log('⚠️ Verified purchase function not available:', err.message)
+      // Continue without verified purchase status
+    }
     
     // Create the review
+    console.log('💾 Creating review in database...')
+    console.log('💾 Review data:', {
+      product_id: parseInt(product_id),
+      user_id: user.id,
+      rating: parseInt(rating),
+      review_title: review_title || null,
+      review_text: review_text || null,
+      is_verified_purchase: isVerifiedPurchase
+    })
+
     const { data: review, error: reviewError } = await supabase
       .from('product_reviews')
       .insert([{
@@ -275,21 +303,29 @@ async function createReview(req, res, body) {
         review_text,
         is_verified_purchase,
         helpful_count,
-        created_at,
-        users (
-          first_name,
-          last_name
-        )
+        created_at
       `)
       .single()
-    
+
     if (reviewError) {
       console.error('❌ Error creating review:', reviewError)
-      throw reviewError
+      console.error('❌ Error details:', JSON.stringify(reviewError, null, 2))
+
+      // Check if it's a table not found error
+      if (reviewError.code === '42P01') {
+        throw new Error('Database table "product_reviews" does not exist. Please run the database schema setup.')
+      }
+
+      // Check if it's a foreign key constraint error
+      if (reviewError.code === '23503') {
+        throw new Error('Invalid product_id or user_id. Please check the data.')
+      }
+
+      throw new Error(`Database error: ${reviewError.message}`)
     }
     
     console.log('✅ Review created successfully:', review.id)
-    
+
     return res.status(201).json({
       success: true,
       message: 'Review created successfully',
@@ -302,7 +338,7 @@ async function createReview(req, res, body) {
         helpfulCount: review.helpful_count,
         createdAt: review.created_at,
         user: {
-          name: `${review.users?.first_name || ''} ${review.users?.last_name || ''}`.trim() || 'Anonymous'
+          name: user.email || 'Anonymous' // Use email from JWT token
         }
       }
     })
