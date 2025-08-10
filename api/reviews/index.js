@@ -1,4 +1,20 @@
 const { supabase } = require('../../lib/supabase')
+const jwt = require('jsonwebtoken')
+
+// Helper function to verify JWT token
+function verifyToken(req) {
+  const authHeader = req.headers.authorization
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return null
+  }
+
+  const token = authHeader.substring(7)
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret')
+  } catch (error) {
+    return null
+  }
+}
 
 module.exports = async function handler(req, res) {
   console.log('📝 Reviews API called:', req.method, req.path)
@@ -186,18 +202,11 @@ async function getProductReviews(req, res, productId, page, limit, sort) {
 async function createReview(req, res, body) {
   try {
     const { product_id, rating, review_title, review_text } = body
-    
-    // Get user from authorization header
-    const authHeader = req.headers.authorization
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+
+    // Verify authentication using JWT
+    const user = verifyToken(req)
+    if (!user) {
       return res.status(401).json({ success: false, message: 'Authorization required' })
-    }
-    
-    const token = authHeader.split(' ')[1]
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    
-    if (authError || !user) {
-      return res.status(401).json({ success: false, message: 'Invalid authorization' })
     }
     
     console.log(`📝 Creating review for product ${product_id} by user ${user.id}`)
@@ -294,18 +303,11 @@ async function createReview(req, res, body) {
 async function updateReview(req, res, reviewId, body) {
   try {
     const { rating, review_title, review_text, is_approved } = body
-    
-    // Get user from authorization header
-    const authHeader = req.headers.authorization
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+
+    // Verify authentication using JWT
+    const user = verifyToken(req)
+    if (!user) {
       return res.status(401).json({ success: false, message: 'Authorization required' })
-    }
-    
-    const token = authHeader.split(' ')[1]
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    
-    if (authError || !user) {
-      return res.status(401).json({ success: false, message: 'Invalid authorization' })
     }
     
     console.log(`📝 Updating review ${reviewId} by user ${user.id}`)
@@ -396,17 +398,10 @@ async function updateReview(req, res, reviewId, body) {
 // Delete a review
 async function deleteReview(req, res, reviewId) {
   try {
-    // Get user from authorization header
-    const authHeader = req.headers.authorization
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // Verify authentication using JWT
+    const user = verifyToken(req)
+    if (!user) {
       return res.status(401).json({ success: false, message: 'Authorization required' })
-    }
-
-    const token = authHeader.split(' ')[1]
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-
-    if (authError || !user) {
-      return res.status(401).json({ success: false, message: 'Invalid authorization' })
     }
 
     console.log(`🗑️ Deleting review ${reviewId} by user ${user.id}`)
@@ -464,27 +459,14 @@ async function deleteReview(req, res, reviewId) {
 // Get all reviews (admin only)
 async function getAllReviews(req, res, page, limit, status) {
   try {
-    // Get user from authorization header
-    const authHeader = req.headers.authorization
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // Verify authentication using JWT
+    const user = verifyToken(req)
+    if (!user) {
       return res.status(401).json({ success: false, message: 'Authorization required' })
     }
 
-    const token = authHeader.split(' ')[1]
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-
-    if (authError || !user) {
-      return res.status(401).json({ success: false, message: 'Invalid authorization' })
-    }
-
-    // Check if user is admin
-    const { data: userInfo } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (userInfo?.role !== 'admin') {
+    // Check if user is admin (role is in JWT token)
+    if (user.role !== 'admin') {
       return res.status(403).json({ success: false, message: 'Admin access required' })
     }
 

@@ -1,4 +1,20 @@
 const { supabase } = require('../../lib/supabase')
+const jwt = require('jsonwebtoken')
+
+// Helper function to verify JWT token
+function verifyToken(req) {
+  const authHeader = req.headers.authorization
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return null
+  }
+
+  const token = authHeader.substring(7)
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret')
+  } catch (error) {
+    return null
+  }
+}
 
 module.exports = async function handler(req, res) {
   // CORS is handled by dev-server middleware
@@ -79,18 +95,11 @@ async function getHelpfulnessVotes(req, res, reviewId) {
 async function voteHelpfulness(req, res, body) {
   try {
     const { review_id, is_helpful } = body
-    
-    // Get user from authorization header
-    const authHeader = req.headers.authorization
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+
+    // Verify authentication using JWT
+    const user = verifyToken(req)
+    if (!user) {
       return res.status(401).json({ success: false, message: 'Authorization required' })
-    }
-    
-    const token = authHeader.split(' ')[1]
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    
-    if (authError || !user) {
-      return res.status(401).json({ success: false, message: 'Invalid authorization' })
     }
     
     console.log(`👍 User ${user.id} voting on review ${review_id}: ${is_helpful ? 'helpful' : 'not helpful'}`)
@@ -184,18 +193,11 @@ async function voteHelpfulness(req, res, body) {
 async function updateHelpfulnessVote(req, res, body) {
   try {
     const { review_id, is_helpful } = body
-    
-    // Get user from authorization header
-    const authHeader = req.headers.authorization
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+
+    // Verify authentication using JWT
+    const user = verifyToken(req)
+    if (!user) {
       return res.status(401).json({ success: false, message: 'Authorization required' })
-    }
-    
-    const token = authHeader.split(' ')[1]
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    
-    if (authError || !user) {
-      return res.status(401).json({ success: false, message: 'Invalid authorization' })
     }
     
     console.log(`👍 User ${user.id} updating vote on review ${review_id}`)
@@ -248,17 +250,10 @@ async function updateHelpfulnessVote(req, res, body) {
 // Remove helpfulness vote
 async function removeHelpfulnessVote(req, res, reviewId) {
   try {
-    // Get user from authorization header
-    const authHeader = req.headers.authorization
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // Verify authentication using JWT
+    const user = verifyToken(req)
+    if (!user) {
       return res.status(401).json({ success: false, message: 'Authorization required' })
-    }
-    
-    const token = authHeader.split(' ')[1]
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    
-    if (authError || !user) {
-      return res.status(401).json({ success: false, message: 'Invalid authorization' })
     }
     
     console.log(`🗑️ User ${user.id} removing vote on review ${reviewId}`)
@@ -295,17 +290,10 @@ async function removeHelpfulnessVote(req, res, reviewId) {
 // Get user's vote on a specific review
 async function getUserVote(req, res, reviewId) {
   try {
-    // Get user from authorization header
-    const authHeader = req.headers.authorization
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // Verify authentication using JWT
+    const user = verifyToken(req)
+    if (!user) {
       return res.status(401).json({ success: false, message: 'Authorization required' })
-    }
-    
-    const token = authHeader.split(' ')[1]
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    
-    if (authError || !user) {
-      return res.status(401).json({ success: false, message: 'Invalid authorization' })
     }
     
     if (!reviewId) {
