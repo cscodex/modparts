@@ -23,17 +23,25 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { period = '30', type = 'overview' } = req.query
+    const { period = '30', type = 'overview', startDate: customStartDate, endDate: customEndDate } = req.query
 
-    console.log(`📊 Fetching financial analytics - Period: ${period} days, Type: ${type}`)
+    let startDateStr, endDateStr
 
-    // Calculate date range
-    const endDate = new Date()
-    const startDate = new Date()
-    startDate.setDate(startDate.getDate() - parseInt(period))
+    // Use custom date range if provided, otherwise use period
+    if (customStartDate && customEndDate) {
+      console.log(`📊 Fetching financial analytics - Custom range: ${customStartDate} to ${customEndDate}, Type: ${type}`)
+      startDateStr = new Date(customStartDate).toISOString()
+      endDateStr = new Date(customEndDate + 'T23:59:59.999Z').toISOString() // Include full end date
+    } else {
+      console.log(`📊 Fetching financial analytics - Period: ${period} days, Type: ${type}`)
+      // Calculate date range from period
+      const endDate = new Date()
+      const startDate = new Date()
+      startDate.setDate(startDate.getDate() - parseInt(period))
 
-    const startDateStr = startDate.toISOString()
-    const endDateStr = endDate.toISOString()
+      startDateStr = startDate.toISOString()
+      endDateStr = endDate.toISOString()
+    }
 
     switch (type) {
       case 'overview':
@@ -431,26 +439,31 @@ async function getCustomerAnalytics(res, startDate, endDate) {
 // Export Financial Data
 async function exportFinancialData(res, startDate, endDate) {
   try {
+    console.log(`📤 Exporting financial data from ${startDate} to ${endDate}`)
+
     // Get comprehensive order data for export
-    const { data: exportData } = await supabase
+    const { data: exportData, error: exportError } = await supabase
       .from('orders')
       .select(`
         id,
         total_amount,
         status,
         payment_method,
+        shipping_address,
         created_at,
         updated_at,
         users (
           email,
           first_name,
-          last_name
+          last_name,
+          phone
         ),
         order_items (
           quantity,
           price,
           products (
             name,
+            sku,
             categories (
               name
             )
@@ -461,26 +474,79 @@ async function exportFinancialData(res, startDate, endDate) {
       .lte('created_at', endDate)
       .order('created_at', { ascending: false })
 
-    // Format data for CSV export
-    const csvData = exportData?.map(order => ({
-      order_id: order.id,
-      customer_email: order.users?.email || '',
-      customer_name: `${order.users?.first_name || ''} ${order.users?.last_name || ''}`.trim(),
-      total_amount: order.total_amount,
-      status: order.status,
-      payment_method: order.payment_method,
-      order_date: new Date(order.created_at).toLocaleDateString(),
-      items_count: order.order_items?.length || 0,
-      products: order.order_items?.map(item => item.products?.name).join('; ') || ''
-    })) || []
+    if (exportError) {
+      console.error('❌ Error fetching export data:', exportError)
+      throw exportError
+    }
+
+    console.log(`📊 Found ${exportData?.length || 0} orders for export`)
+
+    // Format data for CSV export with detailed information
+    const csvData = []
+
+    exportData?.forEach(order => {
+      if (order.order_items && order.order_items.length > 0) {
+        // Create a row for each order item for detailed analysis
+        order.order_items.forEach(item => {
+          csvData.push({
+            order_id: order.id,
+            order_date: new Date(order.created_at).toLocaleDateString(),
+            order_time: new Date(order.created_at).toLocaleTimeString(),
+            customer_email: order.users?.email || '',
+            customer_name: `${order.users?.first_name || ''} ${order.users?.last_name || ''}`.trim(),
+            customer_phone: order.users?.phone || '',
+            order_total: parseFloat(order.total_amount) || 0,
+            order_status: order.status,
+            payment_method: order.payment_method || '',
+            shipping_address: order.shipping_address || '',
+            product_name: item.products?.name || '',
+            product_sku: item.products?.sku || '',
+            product_category: item.products?.categories?.name || '',
+            item_quantity: item.quantity || 0,
+            item_price: parseFloat(item.price) || 0,
+            item_total: (parseFloat(item.price) || 0) * (item.quantity || 0),
+            updated_at: new Date(order.updated_at).toLocaleDateString()
+          })
+        })
+      } else {
+        // Create a single row for orders without items
+        csvData.push({
+          order_id: order.id,
+          order_date: new Date(order.created_at).toLocaleDateString(),
+          order_time: new Date(order.created_at).toLocaleTimeString(),
+          customer_email: order.users?.email || '',
+          customer_name: `${order.users?.first_name || ''} ${order.users?.last_name || ''}`.trim(),
+          customer_phone: order.users?.phone || '',
+          order_total: parseFloat(order.total_amount) || 0,
+          order_status: order.status,
+          payment_method: order.payment_method || '',
+          shipping_address: order.shipping_address || '',
+          product_name: '',
+          product_sku: '',
+          product_category: '',
+          item_quantity: 0,
+          item_price: 0,
+          item_total: 0,
+          updated_at: new Date(order.updated_at).toLocaleDateString()
+        })
+      }
+    })
+
+    // Calculate summary statistics
+    const uniqueOrders = [...new Set(csvData.map(row => row.order_id))]
+    const totalRevenue = csvData.reduce((sum, row) => sum + (row.order_total || 0), 0)
+    const totalItems = csvData.reduce((sum, row) => sum + (row.item_quantity || 0), 0)
 
     return res.status(200).json({
       success: true,
       data: csvData,
       summary: {
-        totalOrders: csvData.length,
-        totalRevenue: csvData.reduce((sum, order) => sum + (parseFloat(order.total_amount) || 0), 0),
-        dateRange: { startDate, endDate }
+        totalOrders: uniqueOrders.length,
+        totalItems: totalItems,
+        totalRevenue: totalRevenue,
+        averageOrderValue: uniqueOrders.length > 0 ? totalRevenue / uniqueOrders.length : 0,
+        dateRange: { startDate, endDate },
+        exportedRows: csvData.length
       }
     })
 

@@ -37,12 +37,20 @@ const apiRequest = async (endpoint, options = {}) => {
 };
 
 // Financial Overview Analytics
-export const getFinancialOverview = async (period = 30) => {
+export const getFinancialOverview = async (period = 30, startDate = null, endDate = null) => {
   try {
-    console.log(`📊 Fetching financial overview for ${period} days`);
-    
-    const response = await apiRequest(`/analytics/financial?period=${period}&type=overview`);
-    
+    let url = `/analytics/financial?type=overview`;
+
+    if (startDate && endDate) {
+      console.log(`📊 Fetching financial overview from ${startDate} to ${endDate}`);
+      url += `&startDate=${startDate}&endDate=${endDate}`;
+    } else {
+      console.log(`📊 Fetching financial overview for ${period} days`);
+      url += `&period=${period}`;
+    }
+
+    const response = await apiRequest(url);
+
     if (response.success) {
       return response.data;
     } else {
@@ -55,12 +63,20 @@ export const getFinancialOverview = async (period = 30) => {
 };
 
 // Revenue Analytics
-export const getRevenueAnalytics = async (period = 30) => {
+export const getRevenueAnalytics = async (period = 30, startDate = null, endDate = null) => {
   try {
-    console.log(`📈 Fetching revenue analytics for ${period} days`);
-    
-    const response = await apiRequest(`/analytics/financial?period=${period}&type=revenue`);
-    
+    let url = `/analytics/financial?type=revenue`;
+
+    if (startDate && endDate) {
+      console.log(`📈 Fetching revenue analytics from ${startDate} to ${endDate}`);
+      url += `&startDate=${startDate}&endDate=${endDate}`;
+    } else {
+      console.log(`💰 Fetching revenue analytics for ${period} days`);
+      url += `&period=${period}`;
+    }
+
+    const response = await apiRequest(url);
+
     if (response.success) {
       return response.data;
     } else {
@@ -73,12 +89,20 @@ export const getRevenueAnalytics = async (period = 30) => {
 };
 
 // Order Analytics
-export const getOrderAnalytics = async (period = 30) => {
+export const getOrderAnalytics = async (period = 30, startDate = null, endDate = null) => {
   try {
-    console.log(`📦 Fetching order analytics for ${period} days`);
-    
-    const response = await apiRequest(`/analytics/financial?period=${period}&type=orders`);
-    
+    let url = `/analytics/financial?type=orders`;
+
+    if (startDate && endDate) {
+      console.log(`📦 Fetching order analytics from ${startDate} to ${endDate}`);
+      url += `&startDate=${startDate}&endDate=${endDate}`;
+    } else {
+      console.log(`📦 Fetching order analytics for ${period} days`);
+      url += `&period=${period}`;
+    }
+
+    const response = await apiRequest(url);
+
     if (response.success) {
       return response.data;
     } else {
@@ -91,12 +115,20 @@ export const getOrderAnalytics = async (period = 30) => {
 };
 
 // Product Performance Analytics
-export const getProductAnalytics = async (period = 30) => {
+export const getProductAnalytics = async (period = 30, startDate = null, endDate = null) => {
   try {
-    console.log(`🛍️ Fetching product analytics for ${period} days`);
-    
-    const response = await apiRequest(`/analytics/financial?period=${period}&type=products`);
-    
+    let url = `/analytics/financial?type=products`;
+
+    if (startDate && endDate) {
+      console.log(`🛍️ Fetching product analytics from ${startDate} to ${endDate}`);
+      url += `&startDate=${startDate}&endDate=${endDate}`;
+    } else {
+      console.log(`🛍️ Fetching product analytics for ${period} days`);
+      url += `&period=${period}`;
+    }
+
+    const response = await apiRequest(url);
+
     if (response.success) {
       return response.data;
     } else {
@@ -109,12 +141,20 @@ export const getProductAnalytics = async (period = 30) => {
 };
 
 // Customer Analytics
-export const getCustomerAnalytics = async (period = 30) => {
+export const getCustomerAnalytics = async (period = 30, startDate = null, endDate = null) => {
   try {
-    console.log(`👥 Fetching customer analytics for ${period} days`);
-    
-    const response = await apiRequest(`/analytics/financial?period=${period}&type=customers`);
-    
+    let url = `/analytics/financial?type=customers`;
+
+    if (startDate && endDate) {
+      console.log(`👥 Fetching customer analytics from ${startDate} to ${endDate}`);
+      url += `&startDate=${startDate}&endDate=${endDate}`;
+    } else {
+      console.log(`👥 Fetching customer analytics for ${period} days`);
+      url += `&period=${period}`;
+    }
+
+    const response = await apiRequest(url);
+
     if (response.success) {
       return response.data;
     } else {
@@ -127,12 +167,20 @@ export const getCustomerAnalytics = async (period = 30) => {
 };
 
 // Export Financial Data
-export const exportFinancialData = async (period = 30, format = 'json') => {
+export const exportFinancialData = async (period = 30, format = 'json', startDate = null, endDate = null) => {
   try {
-    console.log(`📤 Exporting financial data for ${period} days in ${format} format`);
-    
-    const response = await apiRequest(`/analytics/financial?period=${period}&type=export`);
-    
+    let url = `/analytics/financial?type=export`;
+
+    if (startDate && endDate) {
+      console.log(`📤 Exporting financial data from ${startDate} to ${endDate} in ${format} format`);
+      url += `&startDate=${startDate}&endDate=${endDate}`;
+    } else {
+      console.log(`📤 Exporting financial data for ${period} days in ${format} format`);
+      url += `&period=${period}`;
+    }
+
+    const response = await apiRequest(url);
+
     if (response.success) {
       if (format === 'csv') {
         return convertToCSV(response.data, response.summary);
@@ -150,31 +198,53 @@ export const exportFinancialData = async (period = 30, format = 'json') => {
 // Convert data to CSV format
 const convertToCSV = (data, summary) => {
   if (!data || data.length === 0) {
-    return 'No data available for the selected period';
+    return 'No data available for the selected period.\n\nPlease check:\n1. Date range is correct\n2. Orders exist in the selected period\n3. Database connection is working';
   }
 
-  // CSV headers
-  const headers = Object.keys(data[0]).join(',');
-  
-  // CSV rows
-  const rows = data.map(row => 
-    Object.values(row).map(value => 
-      typeof value === 'string' && value.includes(',') 
-        ? `"${value}"` 
-        : value
-    ).join(',')
+  console.log(`📊 Converting ${data.length} rows to CSV format`);
+
+  // CSV headers with proper formatting
+  const headers = Object.keys(data[0])
+    .map(header => header.replace(/_/g, ' ').toUpperCase())
+    .join(',');
+
+  // CSV rows with proper escaping
+  const rows = data.map(row =>
+    Object.values(row).map(value => {
+      // Handle different data types
+      if (value === null || value === undefined) {
+        return '';
+      }
+
+      // Convert to string and escape commas and quotes
+      const stringValue = String(value);
+      if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+        return `"${stringValue.replace(/"/g, '""')}"`;
+      }
+
+      return stringValue;
+    }).join(',')
   );
 
-  // Summary information
+  // Enhanced summary information
   const summaryRows = [
     '',
-    'SUMMARY',
-    `Total Orders,${summary.totalOrders}`,
-    `Total Revenue,$${summary.totalRevenue.toFixed(2)}`,
-    `Date Range,${summary.dateRange.startDate} to ${summary.dateRange.endDate}`
+    '=== FINANCIAL REPORT SUMMARY ===',
+    `Total Orders,${summary?.totalOrders || 0}`,
+    `Total Items Sold,${summary?.totalItems || 0}`,
+    `Total Revenue,$${(summary?.totalRevenue || 0).toFixed(2)}`,
+    `Average Order Value,$${(summary?.averageOrderValue || 0).toFixed(2)}`,
+    `Date Range,${summary?.dateRange?.startDate || ''} to ${summary?.dateRange?.endDate || ''}`,
+    `Exported Rows,${summary?.exportedRows || data.length}`,
+    `Report Generated,${new Date().toLocaleString()}`,
+    `Generated By,Sardaarji Auto Parts Analytics System`
   ];
 
-  return [headers, ...rows, ...summaryRows].join('\n');
+  const csvContent = [headers, ...rows, ...summaryRows].join('\n');
+
+  console.log(`✅ CSV generated successfully with ${rows.length} data rows and ${summaryRows.length} summary rows`);
+
+  return csvContent;
 };
 
 // Download CSV file

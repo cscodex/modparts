@@ -21,6 +21,11 @@ import { useToast } from '../../context/ToastContext';
 const FinancialAnalytics = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [period, setPeriod] = useState(30);
+  const [customDateRange, setCustomDateRange] = useState({
+    startDate: '',
+    endDate: '',
+    enabled: false
+  });
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState({});
   const [error, setError] = useState(null);
@@ -31,7 +36,7 @@ const FinancialAnalytics = () => {
   // Load analytics data
   useEffect(() => {
     loadAnalyticsData();
-  }, [period, activeTab]);
+  }, [period, activeTab, customDateRange]);
 
   const loadAnalyticsData = async () => {
     setLoading(true);
@@ -40,24 +45,29 @@ const FinancialAnalytics = () => {
     try {
       let analyticsData = {};
 
+      // Determine date parameters
+      const dateParams = customDateRange.enabled && customDateRange.startDate && customDateRange.endDate
+        ? { startDate: customDateRange.startDate, endDate: customDateRange.endDate }
+        : { period };
+
       switch (activeTab) {
         case 'overview':
-          analyticsData = await getFinancialOverview(period);
+          analyticsData = await getFinancialOverview(dateParams.period, dateParams.startDate, dateParams.endDate);
           break;
         case 'revenue':
-          analyticsData = await getRevenueAnalytics(period);
+          analyticsData = await getRevenueAnalytics(dateParams.period, dateParams.startDate, dateParams.endDate);
           break;
         case 'orders':
-          analyticsData = await getOrderAnalytics(period);
+          analyticsData = await getOrderAnalytics(dateParams.period, dateParams.startDate, dateParams.endDate);
           break;
         case 'products':
-          analyticsData = await getProductAnalytics(period);
+          analyticsData = await getProductAnalytics(dateParams.period, dateParams.startDate, dateParams.endDate);
           break;
         case 'customers':
-          analyticsData = await getCustomerAnalytics(period);
+          analyticsData = await getCustomerAnalytics(dateParams.period, dateParams.startDate, dateParams.endDate);
           break;
         default:
-          analyticsData = await getFinancialOverview(period);
+          analyticsData = await getFinancialOverview(dateParams.period, dateParams.startDate, dateParams.endDate);
       }
 
       setData(analyticsData);
@@ -72,8 +82,19 @@ const FinancialAnalytics = () => {
   // Export data to CSV
   const handleExport = async () => {
     try {
-      const exportData = await exportFinancialData(period, 'csv');
-      const filename = `financial_report_${period}days_${new Date().toISOString().split('T')[0]}.csv`;
+      let exportData;
+      let filename;
+
+      if (customDateRange.enabled && customDateRange.startDate && customDateRange.endDate) {
+        // Export with custom date range
+        exportData = await exportFinancialData(null, 'csv', customDateRange.startDate, customDateRange.endDate);
+        filename = `financial_report_${customDateRange.startDate}_to_${customDateRange.endDate}.csv`;
+      } else {
+        // Export with period
+        exportData = await exportFinancialData(period, 'csv');
+        filename = `financial_report_${period}days_${new Date().toISOString().split('T')[0]}.csv`;
+      }
+
       downloadCSV(exportData, filename);
       success('Financial report exported successfully');
     } catch (err) {
@@ -122,23 +143,69 @@ const FinancialAnalytics = () => {
         <h2 className="text-2xl font-bold text-white">Financial Analytics</h2>
         
         <div className="flex flex-col sm:flex-row gap-3">
-          {/* Period Selector */}
-          <select
-            value={period}
-            onChange={(e) => setPeriod(parseInt(e.target.value))}
-            className="bg-midnight-800 border border-midnight-600 text-white rounded px-3 py-2 focus:outline-none focus:border-blue-500"
-          >
-            {dateRangeOptions.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+          {/* Date Range Toggle */}
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="customDateRange"
+              checked={customDateRange.enabled}
+              onChange={(e) => setCustomDateRange(prev => ({
+                ...prev,
+                enabled: e.target.checked,
+                startDate: e.target.checked ? prev.startDate : '',
+                endDate: e.target.checked ? prev.endDate : ''
+              }))}
+              className="rounded border-midnight-600 bg-midnight-800 text-blue-600 focus:ring-blue-500"
+            />
+            <label htmlFor="customDateRange" className="text-white text-sm">
+              Custom Date Range
+            </label>
+          </div>
+
+          {/* Period Selector (only show when custom range is disabled) */}
+          {!customDateRange.enabled && (
+            <select
+              value={period}
+              onChange={(e) => setPeriod(parseInt(e.target.value))}
+              className="bg-midnight-800 border border-midnight-600 text-white rounded px-3 py-2 focus:outline-none focus:border-blue-500"
+            >
+              {dateRangeOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {/* Custom Date Range Inputs */}
+          {customDateRange.enabled && (
+            <>
+              <div className="flex items-center space-x-2">
+                <label className="text-white text-sm">From:</label>
+                <input
+                  type="date"
+                  value={customDateRange.startDate}
+                  onChange={(e) => setCustomDateRange(prev => ({ ...prev, startDate: e.target.value }))}
+                  className="bg-midnight-800 border border-midnight-600 text-white rounded px-3 py-2 focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <label className="text-white text-sm">To:</label>
+                <input
+                  type="date"
+                  value={customDateRange.endDate}
+                  onChange={(e) => setCustomDateRange(prev => ({ ...prev, endDate: e.target.value }))}
+                  className="bg-midnight-800 border border-midnight-600 text-white rounded px-3 py-2 focus:outline-none focus:border-blue-500"
+                />
+              </div>
+            </>
+          )}
 
           {/* Export Button */}
           <button
             onClick={handleExport}
-            className="flex items-center bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
+            disabled={customDateRange.enabled && (!customDateRange.startDate || !customDateRange.endDate)}
+            className="flex items-center bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
