@@ -3,15 +3,25 @@ const jwt = require('jsonwebtoken')
 
 // Helper function to verify JWT token
 function verifyToken(req) {
+  console.log('🔐 Verifying token...')
+  console.log('🔐 Auth header:', req.headers.authorization ? 'Present' : 'Missing')
+
   const authHeader = req.headers.authorization
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.log('❌ No valid auth header found')
     return null
   }
 
   const token = authHeader.substring(7)
+  console.log('🔐 Token extracted:', token.substring(0, 20) + '...')
+  console.log('🔐 JWT_SECRET available:', process.env.JWT_SECRET ? 'Yes' : 'No')
+
   try {
-    return jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret')
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret')
+    console.log('✅ Token verified successfully:', { id: decoded.id, email: decoded.email, role: decoded.role })
+    return decoded
   } catch (error) {
+    console.log('❌ Token verification failed:', error.message)
     return null
   }
 }
@@ -201,13 +211,17 @@ async function getProductReviews(req, res, productId, page, limit, sort) {
 // Create a new review
 async function createReview(req, res, body) {
   try {
+    console.log('📝 Creating review with body:', body)
     const { product_id, rating, review_title, review_text } = body
 
     // Verify authentication using JWT
     const user = verifyToken(req)
     if (!user) {
-      return res.status(401).json({ success: false, message: 'Authorization required' })
+      console.log('❌ Authentication failed in createReview')
+      return res.status(401).json({ success: false, message: 'Invalid authorization' })
     }
+
+    console.log('✅ User authenticated:', user.email)
     
     console.log(`📝 Creating review for product ${product_id} by user ${user.id}`)
     
