@@ -1,0 +1,106 @@
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.cart_items (
+  user_id uuid NOT NULL,
+  product_id bigint NOT NULL,
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  quantity integer NOT NULL DEFAULT 1 CHECK (quantity > 0),
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT cart_items_pkey PRIMARY KEY (id),
+  CONSTRAINT cart_items_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id),
+  CONSTRAINT cart_items_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.categories (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  name text NOT NULL,
+  description text,
+  created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT categories_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.order_items (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  order_id bigint NOT NULL,
+  product_id bigint NOT NULL,
+  quantity integer NOT NULL,
+  price numeric NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT order_items_pkey PRIMARY KEY (id),
+  CONSTRAINT order_items_order_id_fkey FOREIGN KEY (order_id) REFERENCES public.orders(id)
+);
+CREATE TABLE public.order_status_history (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  order_id bigint NOT NULL,
+  status text NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT order_status_history_pkey PRIMARY KEY (id),
+  CONSTRAINT order_status_history_order_id_fkey FOREIGN KEY (order_id) REFERENCES public.orders(id)
+);
+CREATE TABLE public.orders (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  user_id uuid NOT NULL,
+  total_amount numeric NOT NULL,
+  shipping_address text NOT NULL,
+  payment_method text NOT NULL,
+  status text NOT NULL DEFAULT 'pending'::text,
+  created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT orders_pkey PRIMARY KEY (id),
+  CONSTRAINT orders_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.products (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  category_id bigint,
+  name text NOT NULL,
+  description text,
+  condition_status text NOT NULL,
+  price numeric NOT NULL,
+  image_url text,
+  quantity integer NOT NULL DEFAULT 0,
+  created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT products_pkey PRIMARY KEY (id),
+  CONSTRAINT products_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.categories(id)
+);
+CREATE TABLE public.users (
+  email_verified boolean DEFAULT false,
+  email_verification_token character varying,
+  email_verification_expires timestamp with time zone,
+  email_verification_sent_at timestamp with time zone,
+  status character varying DEFAULT 'active'::character varying CHECK (status::text = ANY (ARRAY['pending_approval'::character varying, 'active'::character varying, 'rejected'::character varying, 'suspended'::character varying]::text[])),
+  approved_at timestamp with time zone,
+  approval_reason text,
+  email text NOT NULL,
+  password text NOT NULL,
+  first_name text,
+  last_name text,
+  address text,
+  phone text,
+  city text,
+  state text,
+  zip_code text,
+  shipping_address text,
+  shipping_city text,
+  shipping_state text,
+  shipping_zip_code text,
+  billing_address text,
+  billing_city text,
+  billing_state text,
+  billing_zip_code text,
+  role text NOT NULL DEFAULT 'customer'::text,
+  created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  preferred_payment_method text DEFAULT 'credit_card'::text,
+  preferred_address text DEFAULT 'shipping'::text,
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  CONSTRAINT users_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.wishlist_items (
+  user_id uuid NOT NULL,
+  product_id bigint NOT NULL,
+  id bigint NOT NULL DEFAULT nextval('wishlist_items_id_seq'::regclass),
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT wishlist_items_pkey PRIMARY KEY (id)
+);
