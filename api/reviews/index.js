@@ -1,6 +1,8 @@
 const { supabase } = require('../../lib/supabase')
 
 module.exports = async function handler(req, res) {
+  console.log('📝 Reviews API called:', req.method, req.path)
+
   // CORS is handled by dev-server middleware
 
   try {
@@ -8,6 +10,17 @@ module.exports = async function handler(req, res) {
     const { product_id, review_id, page = 1, limit = 10, sort = 'newest', status = 'all' } = query
 
     console.log(`📝 Reviews API called: ${method} with params:`, { product_id, review_id, page, limit, sort, status })
+
+    // Simple test response first
+    if (req.query.test === 'true') {
+      return res.status(200).json({
+        success: true,
+        message: 'Reviews API is working!',
+        method,
+        query,
+        timestamp: new Date().toISOString()
+      })
+    }
 
     switch (method) {
       case 'GET':
@@ -18,34 +31,36 @@ module.exports = async function handler(req, res) {
         } else {
           return await getAllReviews(req, res, page, limit, status)
         }
-        
+
       case 'POST':
         return await createReview(req, res, body)
-        
+
       case 'PUT':
         if (review_id) {
           return await updateReview(req, res, review_id, body)
         } else {
           return res.status(400).json({ success: false, message: 'Review ID is required for updates' })
         }
-        
+
       case 'DELETE':
         if (review_id) {
           return await deleteReview(req, res, review_id)
         } else {
           return res.status(400).json({ success: false, message: 'Review ID is required for deletion' })
         }
-        
+
       default:
         return res.status(405).json({ success: false, message: 'Method not allowed' })
     }
 
   } catch (error) {
     console.error('❌ Reviews API error:', error)
+    console.error('❌ Error stack:', error.stack)
     return res.status(500).json({
       success: false,
       message: 'Internal server error',
-      error: error.message
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     })
   }
 }

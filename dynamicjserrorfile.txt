@@ -1,0 +1,267 @@
+etching reviews for product 19
+index.js:74  GET https://sardaarjiautoparts.onrender.com/api/reviews?product_id=19&page=1&limit=10&sort=newest 404 (Not Found)
+(anonymous) @ index.js:74
+(anonymous) @ index.js:1
+de @ index.js:1
+jf @ index.js:74
+(anonymous) @ index.js:74
+(anonymous) @ index.js:1
+de @ index.js:1
+b8 @ index.js:74
+(anonymous) @ index.js:74
+(anonymous) @ index.js:1
+de @ index.js:1
+X @ index.js:74
+(anonymous) @ index.js:74
+th @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+vv @ index.js:48
+(anonymous) @ index.js:48
+O @ index.js:25Understand this error
+index.js:74 API request failed for /reviews?product_id=19&page=1&limit=10&sort=newest: Error: API endpoint not found
+    at index.js:74:25774
+    at Generator.next (<anonymous>)
+    at i (index.js:1:750)
+(anonymous) @ index.js:74
+i @ index.js:1
+Promise.then
+u @ index.js:1
+i @ index.js:1
+Promise.then
+u @ index.js:1
+(anonymous) @ index.js:1
+de @ index.js:1
+jf @ index.js:74
+(anonymous) @ index.js:74
+(anonymous) @ index.js:1
+de @ index.js:1
+b8 @ index.js:74
+(anonymous) @ index.js:74
+(anonymous) @ index.js:1
+de @ index.js:1
+X @ index.js:74
+(anonymous) @ index.js:74
+th @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+vv @ index.js:48
+(anonymous) @ index.js:48
+O @ index.js:25Understand this error
+index.js:74 Error fetching product reviews: Error: API endpoint not found
+    at index.js:74:25774
+    at Generator.next (<anonymous>)
+    at i (index.js:1:750)
+(anonymous) @ index.js:74
+o @ index.js:1
+Promise.then
+u @ index.js:1
+(anonymous) @ index.js:1
+de @ index.js:1
+b8 @ index.js:74
+(anonymous) @ index.js:74
+(anonymous) @ index.js:1
+de @ index.js:1
+X @ index.js:74
+(anonymous) @ index.js:74
+th @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+Io @ index.js:48
+Qx @ index.js:48
+vv @ index.js:48
+(anonymous) @ index.js:48
+O @ index.js:25Understand this error
+index.js:74 📝 Creating review for product 19
+index.js:74  POST https://sardaarjiautoparts.onrender.com/api/reviews 404 (Not Found)
+(anonymous) @ index.js:74
+(anonymous) @ index.js:1
+de @ index.js:1
+jf @ index.js:74
+(anonymous) @ index.js:74
+(anonymous) @ index.js:1
+de @ index.js:1
+_8 @ index.js:74
+(anonymous) @ index.js:74
+(anonymous) @ index.js:1
+de @ index.js:1
+U @ index.js:74
+(anonymous) @ index.js:74
+(anonymous) @ index.js:1
+de @ index.js:1
+m @ index.js:74
+Av @ index.js:48
+(anonymous) @ index.js:48
+rd @ index.js:48
+bp @ index.js:48
+Fp @ index.js:49
+g6 @ index.js:49Understand this error
+index.js:74 API request failed for /reviews: Error: API endpoint not found
+    at index.js:74:25774
+    at Generator.next (<anonymous>)
+    at i (index.js:1:750)
+(anonymous) @ index.js:74
+i @ index.js:1
+Promise.then
+u @ index.js:1
+i @ index.js:1
+Promise.then
+u @ index.js:1
+(anonymous) @ index.js:1
+de @ index.js:1
+jf @ index.js:74
+(anonymous) @ index.js:74
+(anonymous) @ index.js:1
+de @ index.js:1
+_8 @ index.js:74
+(anonymous) @ index.js:74
+(anonymous) @ index.js:1
+de @ index.js:1
+U @ index.js:74
+(anonymous) @ index.js:74
+(anonymous) @ index.js:1
+de @ index.js:1
+m @ index.js:74
+Av @ index.js:48
+(anonymous) @ index.js:48
+rd @ index.js:48
+bp @ index.js:48
+Fp @ index.js:49
+g6 @ index.js:49Understand this error
+index.js:74 Error creating review: Error: API endpoint not found
+    at index.js:74:25774
+    at Generator.next (<anonymous>)
+    at i (index.js:1:750)
