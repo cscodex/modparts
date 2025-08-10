@@ -43,6 +43,17 @@ export default async function handler(req, res) {
       endDateStr = endDate.toISOString()
     }
 
+    // Add a simple test endpoint
+    if (type === 'test') {
+      return res.status(200).json({
+        success: true,
+        message: 'Analytics API is working!',
+        timestamp: new Date().toISOString(),
+        dateRange: { startDateStr, endDateStr },
+        supabaseConnected: !!supabase
+      })
+    }
+
     switch (type) {
       case 'overview':
         return await getFinancialOverview(res, startDateStr, endDateStr)
@@ -57,14 +68,32 @@ export default async function handler(req, res) {
       case 'export':
         return await exportFinancialData(res, startDateStr, endDateStr)
       default:
-        return res.status(400).json({ message: 'Invalid analytics type' })
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid analytics type',
+          availableTypes: ['overview', 'revenue', 'orders', 'products', 'customers', 'export', 'test']
+        })
     }
 
   } catch (error) {
-    console.error('Financial analytics error:', error)
+    console.error('❌ Financial analytics error:', error)
+    console.error('❌ Error stack:', error.stack)
+
+    // Provide more specific error messages
+    let errorMessage = 'Internal server error'
+    if (error.message.includes('relation') && error.message.includes('does not exist')) {
+      errorMessage = 'Database table not found. Please check database setup.'
+    } else if (error.message.includes('permission denied')) {
+      errorMessage = 'Database permission error. Please check RLS policies.'
+    } else if (error.message.includes('connection')) {
+      errorMessage = 'Database connection error. Please try again.'
+    }
+
     return res.status(500).json({
-      message: 'Internal server error',
-      error: error.message
+      success: false,
+      message: errorMessage,
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+      type: type || 'unknown'
     })
   }
 }
@@ -441,7 +470,22 @@ async function exportFinancialData(res, startDate, endDate) {
   try {
     console.log(`📤 Exporting financial data from ${startDate} to ${endDate}`)
 
-    // Get comprehensive order data for export
+    // First, try a simple query to check if orders table exists and has data
+    const { data: simpleOrders, error: simpleError } = await supabase
+      .from('orders')
+      .select('id, total_amount, status, created_at')
+      .gte('created_at', startDate)
+      .lte('created_at', endDate)
+      .limit(5)
+
+    if (simpleError) {
+      console.error('❌ Error with simple orders query:', simpleError)
+      throw new Error(`Database error: ${simpleError.message}`)
+    }
+
+    console.log(`📊 Simple query found ${simpleOrders?.length || 0} orders`)
+
+    // If simple query works, try the comprehensive query
     const { data: exportData, error: exportError } = await supabase
       .from('orders')
       .select(`
@@ -452,22 +496,11 @@ async function exportFinancialData(res, startDate, endDate) {
         shipping_address,
         created_at,
         updated_at,
-        users (
-          email,
-          first_name,
-          last_name,
-          phone
-        ),
+        user_id,
         order_items (
           quantity,
           price,
-          products (
-            name,
-            sku,
-            categories (
-              name
-            )
-          )
+          product_id
         )
       `)
       .gte('created_at', startDate)
@@ -476,36 +509,100 @@ async function exportFinancialData(res, startDate, endDate) {
 
     if (exportError) {
       console.error('❌ Error fetching export data:', exportError)
-      throw exportError
+      throw new Error(`Export query error: ${exportError.message}`)
     }
 
     console.log(`📊 Found ${exportData?.length || 0} orders for export`)
 
+    // Get user data separately to avoid complex joins
+    const userIds = [...new Set(exportData?.map(order => order.user_id).filter(Boolean))]
+    let usersData = {}
+
+    if (userIds.length > 0) {
+      const { data: users, error: usersError } = await supabase
+        .from('users')
+        .select('id, email, first_name, last_name, phone')
+        .in('id', userIds)
+
+      if (!usersError && users) {
+        usersData = users.reduce((acc, user) => {
+          acc[user.id] = user
+          return acc
+        }, {})
+      }
+    }
+
+    // Get product data separately
+    const productIds = []
+    exportData?.forEach(order => {
+      order.order_items?.forEach(item => {
+        if (item.product_id) productIds.push(item.product_id)
+      })
+    })
+
+    const uniqueProductIds = [...new Set(productIds)]
+    let productsData = {}
+
+    if (uniqueProductIds.length > 0) {
+      const { data: products, error: productsError } = await supabase
+        .from('products')
+        .select('id, name, sku')
+        .in('id', uniqueProductIds)
+
+      if (!productsError && products) {
+        productsData = products.reduce((acc, product) => {
+          acc[product.id] = product
+          return acc
+        }, {})
+      }
+    }
+
     // Format data for CSV export with detailed information
     const csvData = []
 
-    exportData?.forEach(order => {
+    if (!exportData || exportData.length === 0) {
+      console.log('⚠️ No orders found for the specified date range')
+      return res.status(200).json({
+        success: true,
+        data: [],
+        summary: {
+          totalOrders: 0,
+          totalItems: 0,
+          totalRevenue: 0,
+          averageOrderValue: 0,
+          dateRange: { startDate, endDate },
+          exportedRows: 0,
+          message: 'No orders found for the specified date range'
+        }
+      })
+    }
+
+    exportData.forEach(order => {
+      const user = usersData[order.user_id] || {}
+
       if (order.order_items && order.order_items.length > 0) {
         // Create a row for each order item for detailed analysis
         order.order_items.forEach(item => {
+          const product = productsData[item.product_id] || {}
+
           csvData.push({
             order_id: order.id,
             order_date: new Date(order.created_at).toLocaleDateString(),
             order_time: new Date(order.created_at).toLocaleTimeString(),
-            customer_email: order.users?.email || '',
-            customer_name: `${order.users?.first_name || ''} ${order.users?.last_name || ''}`.trim(),
-            customer_phone: order.users?.phone || '',
+            customer_email: user.email || '',
+            customer_name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
+            customer_phone: user.phone || '',
             order_total: parseFloat(order.total_amount) || 0,
-            order_status: order.status,
+            order_status: order.status || '',
             payment_method: order.payment_method || '',
             shipping_address: order.shipping_address || '',
-            product_name: item.products?.name || '',
-            product_sku: item.products?.sku || '',
-            product_category: item.products?.categories?.name || '',
+            product_name: product.name || 'Unknown Product',
+            product_sku: product.sku || '',
+            product_category: '', // Will add category lookup later if needed
             item_quantity: item.quantity || 0,
             item_price: parseFloat(item.price) || 0,
             item_total: (parseFloat(item.price) || 0) * (item.quantity || 0),
-            updated_at: new Date(order.updated_at).toLocaleDateString()
+            updated_at: new Date(order.updated_at || order.created_at).toLocaleDateString()
           })
         })
       } else {
@@ -514,23 +611,25 @@ async function exportFinancialData(res, startDate, endDate) {
           order_id: order.id,
           order_date: new Date(order.created_at).toLocaleDateString(),
           order_time: new Date(order.created_at).toLocaleTimeString(),
-          customer_email: order.users?.email || '',
-          customer_name: `${order.users?.first_name || ''} ${order.users?.last_name || ''}`.trim(),
-          customer_phone: order.users?.phone || '',
+          customer_email: user.email || '',
+          customer_name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
+          customer_phone: user.phone || '',
           order_total: parseFloat(order.total_amount) || 0,
-          order_status: order.status,
+          order_status: order.status || '',
           payment_method: order.payment_method || '',
           shipping_address: order.shipping_address || '',
-          product_name: '',
+          product_name: 'No items',
           product_sku: '',
           product_category: '',
           item_quantity: 0,
           item_price: 0,
           item_total: 0,
-          updated_at: new Date(order.updated_at).toLocaleDateString()
+          updated_at: new Date(order.updated_at || order.created_at).toLocaleDateString()
         })
       }
     })
+
+    console.log(`📊 Processed ${csvData.length} rows for CSV export`)
 
     // Calculate summary statistics
     const uniqueOrders = [...new Set(csvData.map(row => row.order_id))]
